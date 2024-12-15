@@ -1,0 +1,6 @@
+venv
+nvenv
+.env
+*.sql*
+*__pycache__
+staticfiles
