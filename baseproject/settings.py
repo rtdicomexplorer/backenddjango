@@ -10,23 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-uh9xo3@p^!bix+c4bxycya+1x4jrfl=jd6f0)z#1-hi1^5ak7#'
+SECRET_KEY = os.getenv('SECRET_KEY') # 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc'
 
+ENCRYPT_KEY = os.getenv('ENCRYPT_KEY') 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+ENVIROMENT = os.getenv('ENVIROMENT', default='development')
 
+if ENVIROMENT == 'development':
+    DEBUG = True
+else:
+    DEBUG = False
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+CSRF_TRUSTED_ORIGINS = [ 'https://*' ]
 
 # Application definition
 
@@ -39,8 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api'
-
-
 ]
 
 MIDDLEWARE = [
@@ -74,15 +79,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'baseproject.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if ENVIROMENT == 'development':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME' : os.getenv('DBNAME'),
+            'USER' : os.getenv('DBUSER'),
+            'PASSWORD':os.getenv('DBPASSWORD'),
+            'HOST':'db',
+            'PORT': 5432
+        }
+    }
+
 
 
 # Password validation
