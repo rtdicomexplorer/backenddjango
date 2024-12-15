@@ -1,5 +1,4 @@
 venv
-nvenv
 .env
 *.sql*
 *__pycache__
