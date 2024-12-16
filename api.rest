@@ -8,7 +8,7 @@ Content-Type: application/json
 
 ###
 
-POST http://127.0.0.1:8000/api/login/
+POST http://127.0.0.1:8001/api/login/
 Content-Type: application/json
 
 {  "email": "test@test.com", "password": "admin" }
@@ -33,6 +33,26 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:8000/api/test_auth_token
+GET http://127.0.0.1:8001/api/test_auth_token
 Content-Type: application/json
-Authorization: token b414269362d563e4c7c71f7d978ad19bf5892852
+Authorization: token e6e1b12dbcdad1c147ef8af63ed80410cc11fca4
+
+
+###
+
+POST http://127.0.0.1:8000/api/token/
+Content-Type: application/json
+
+{ "email": "test@test.com", "password": "admin" }
+
+
+
+###
+
+POST http://127.0.0.1:8000/api/token/refresh
+Content-Type: application/json
+
+{ 
+ "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczNDQ1MzE1NiwiaWF0IjoxNzM0MzY2NzU2LCJqdGkiOiIyYzNjYjU1MmRlMTc0MGVlYjQ0MGYyMDczYzgwYmM0NSIsInVzZXJfaWQiOjF9.UYFb8lqghiYr_C6qISoqgkjqmd6wdG14LABPDFl5dLE"
+
+}
