@@ -1,14 +1,14 @@
 ###
 
-POST http://127.0.0.1:8000/api/signup/
+POST http://127.0.0.1:8001/api/signup/
 Content-Type: application/json
 
-{  "email": "michele@test.com", "password": "admin1234" }
+{  "email": "giovanni@test.com", "password": "admin1234", "is_superuser":"True", "is_staff":"True" }
 
 
 ###
 
-POST http://127.0.0.1:8000/api/login/
+POST http://127.0.0.1:8001/api/login/
 Content-Type: application/json
 
 {  "email": "test@test.com", "password": "admin" }
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:8000/api/users
+GET http://127.0.0.1:8001/api/users
 Content-Type: application/json
 
 
