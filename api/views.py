@@ -1,8 +1,11 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,authentication_classes, permission_classes
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.http.response import JsonResponse
 from rest_framework import status
 from .serializers import CustomUserSerializers
+from rest_framework.authtoken.models import Token
 
 from .models import CustomUser
 
@@ -16,7 +19,8 @@ def signup(request):
         user = CustomUser.objects.get(email=request.data['email'])
         user.set_password(request.data['password'])
         user.save()
-        return JsonResponse({'message': 'user created', 'user': serializer.data})
+        token = Token.objects.create(user=user)
+        return JsonResponse({'message': 'user created', 'user': serializer.data, 'token':token.key})
     return JsonResponse(serializer.errors, status=status.HTTP_200_OK)
 
 #LOGIN
@@ -25,10 +29,10 @@ def login(request):
     print('POST login request incoming')
     user = get_object_or_404(CustomUser, email=request.data['email'])
     if not user.check_password(request.data['password']):
-        return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})
-    
+        return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})   
     serializer = CustomUserSerializers(user)
-    return JsonResponse({'message': "user logged in", 'user': serializer.data})
+    token, created = Token.objects.get_or_create(user=user)
+    return JsonResponse({'message': "user logged in", 'user': serializer.data, 'token':token.key, 'created': created})
 
 
 #user list
@@ -51,5 +55,11 @@ def delete(request):
     return JsonResponse({"message": "user removed "+user.email, "status":status.HTTP_200_OK})
 
 
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication,TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def test_auth_token(request):  
+    return JsonResponse({'message': 'Test passed for', 'user': request.user.email})
 
 # Create your views here.
