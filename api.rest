@@ -8,18 +8,18 @@ Content-Type: application/json
 
 ###
 
-POST http://127.0.0.1:8001/api/login/
+POST http://127.0.0.1:8000/api/login/
 Content-Type: application/json
 
-{  "email": "test@test.com", "password": "admin" }
+{  "email": "normaluser@test.com", "password": "user" }
 
 
 
 ###
 
-GET http://127.0.0.1:8001/api/users
+GET http://127.0.0.1:8000/api/users
 Content-Type: application/json
-
+Authorization: token e93a510a04862955279b8ac1a214ef1cee4aeebd
 
 
 
