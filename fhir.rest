@@ -1,0 +1,18 @@
+### ADD
+
+POST http://127.0.0.1:8000/fhir/create/
+Content-Type: application/json
+
+{  "name": "hapi-server2", "host": "127.0.0.1", "port":"8001", "description":"just a new test" }
+
+
+
+### DELETE
+
+DELETE http://127.0.0.1:8000/fhir/delete/2
+Content-Type: application/json
+
+
+### LIST
+GET http://127.0.0.1:8000/fhir/servers
+Content-Type: application/json
