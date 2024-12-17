@@ -62,3 +62,19 @@ class CustomUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return self.is_superuser
+
+
+class FhirServer(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    host = models.CharField(max_length=255)
+    port = models.PositiveIntegerField()
+    image = models.ImageField(upload_to='server/', blank=True, null=True)
+    added_on = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def get_url(self):
+        return self.host+':'+self.port
+    
+    def __str__(self):
+        return self.name
