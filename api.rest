@@ -1,6 +1,6 @@
 ###
 
-POST http://127.0.0.1:8001/api/signup/
+POST http://127.0.0.1:8000/api/signup/
 Content-Type: application/json
 
 {  "email": "giovanni@test.com", "password": "admin1234", "is_superuser":"True", "is_staff":"True" }
@@ -20,8 +20,6 @@ Content-Type: application/json
 GET http://127.0.0.1:8000/api/users
 Content-Type: application/json
 Authorization: token e93a510a04862955279b8ac1a214ef1cee4aeebd
-
-
 
 ###
 

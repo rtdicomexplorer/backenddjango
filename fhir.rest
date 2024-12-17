@@ -16,3 +16,4 @@ Content-Type: application/json
 ### LIST
 GET http://127.0.0.1:8000/fhir/servers
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDU0MjI2LCJpYXQiOjE3MzQ0NTM5MjYsImp0aSI6ImY1YjQ1MWVjZmRmNDQxM2M5OGNjNzZlMzhiMDIyZWI2IiwidXNlcl9pZCI6MX0.clXssAgFVWf_KwjXzHpQX6Jb9LVehoSNv4mkubAN_Gs

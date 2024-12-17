@@ -24,6 +24,7 @@ def create(request):
 
 #user list
 @api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def servers(request):
     print('GET server list request incoming')
     userList = FhirServer.objects.values()
