@@ -1,11 +1,9 @@
-from rest_framework.decorators import api_view,authentication_classes, permission_classes
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.shortcuts import get_object_or_404
 from django.http.response import JsonResponse
 from rest_framework import status
 from .serializers import FhirServerSerializers
-from rest_framework.authtoken.models import Token
 from .models import FhirServer
 
 

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser, FhirServer
 
 class CustomUserSerializers(serializers.ModelSerializer):
@@ -12,3 +13,12 @@ class FhirServerSerializers(serializers.ModelSerializer):
         model = FhirServer
         fields = ['name', 'description', 'host', 'port']
 
+
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['email'] = user.email
+        return token

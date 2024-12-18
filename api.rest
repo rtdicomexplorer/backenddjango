@@ -41,7 +41,7 @@ Authorization: token e6e1b12dbcdad1c147ef8af63ed80410cc11fca4
 POST http://127.0.0.1:8000/api/token/
 Content-Type: application/json
 
-{ "email": "test@test.com", "password": "admin" }
+{ "email": "normaluser@test.com", "password": "user" }
 
 
 
