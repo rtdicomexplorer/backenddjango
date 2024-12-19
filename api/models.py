@@ -66,11 +66,16 @@ class CustomUser(AbstractBaseUser):
 
 class FhirServer(models.Model):
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     host = models.CharField(max_length=255)
-    port = models.PositiveIntegerField()
+    port = models.PositiveIntegerField(null=True)
     image = models.ImageField(upload_to='server/', blank=True, null=True)
     added_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+            verbose_name_plural = "FhirServers"
+            unique_together = ('name', 'host',)
+
 
     @property
     def get_url(self):

@@ -2,6 +2,7 @@
 
 POST http://127.0.0.1:8000/fhir/create/
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NjE5NzYyLCJpYXQiOjE3MzQ2MTk0NjIsImp0aSI6IjQ2ZGY2MzRkZTVmNDQyMjM5ZmE2YmRmYTNmYjZhZDNkIiwidXNlcl9pZCI6MywiZW1haWwiOiJtaWNoZWxlQHRlc3QuY29tIn0.C_e_FWB3Uoj1WKfEpExkeePw64xW48zWEz_GtXDdDCE
 
 {  "name": "hapi-server2", "host": "127.0.0.1", "port":"8001", "description":"just a new test" }
 
@@ -16,4 +17,4 @@ Content-Type: application/json
 ### LIST
 GET http://127.0.0.1:8000/fhir/servers
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NTMwMzgwLCJpYXQiOjE3MzQ1MzAwODAsImp0aSI6ImJiN2YwODRmNzU5OTQwOGZhNGVhYTZkODNiNDg4ZDkwIiwidXNlcl9pZCI6MX0.OhIl784ybMfvC9AItaLDbt8yeJ9JaglwKSQnlqNrNic
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NjE5NzYyLCJpYXQiOjE3MzQ2MTk0NjIsImp0aSI6IjQ2ZGY2MzRkZTVmNDQyMjM5ZmE2YmRmYTNmYjZhZDNkIiwidXNlcl9pZCI6MywiZW1haWwiOiJtaWNoZWxlQHRlc3QuY29tIn0.C_e_FWB3Uoj1WKfEpExkeePw64xW48zWEz_GtXDdDCE

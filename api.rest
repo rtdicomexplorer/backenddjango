@@ -3,15 +3,16 @@
 POST http://127.0.0.1:8000/api/signup/
 Content-Type: application/json
 
-{  "email": "giovanni@test.com", "password": "admin1234", "is_superuser":"True", "is_staff":"True" }
+{  "email": "michele@test.com", "password": "michele", "is_staff":"True"  }
 
 
 ###
 
 POST http://127.0.0.1:8000/api/login/
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NjE5NzYyLCJpYXQiOjE3MzQ2MTk0NjIsImp0aSI6IjQ2ZGY2MzRkZTVmNDQyMjM5ZmE2YmRmYTNmYjZhZDNkIiwidXNlcl9pZCI6MywiZW1haWwiOiJtaWNoZWxlQHRlc3QuY29tIn0.C_e_FWB3Uoj1WKfEpExkeePw64xW48zWEz_GtXDdDCE
 
-{  "email": "normaluser@test.com", "password": "user" }
+{  "email": "michele@test.com", "password": "michele" }
 
 
 
@@ -19,7 +20,7 @@ Content-Type: application/json
 
 GET http://127.0.0.1:8000/api/users
 Content-Type: application/json
-Authorization: token e93a510a04862955279b8ac1a214ef1cee4aeebd
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NjE5NzYyLCJpYXQiOjE3MzQ2MTk0NjIsImp0aSI6IjQ2ZGY2MzRkZTVmNDQyMjM5ZmE2YmRmYTNmYjZhZDNkIiwidXNlcl9pZCI6MywiZW1haWwiOiJtaWNoZWxlQHRlc3QuY29tIn0.C_e_FWB3Uoj1WKfEpExkeePw64xW48zWEz_GtXDdDCE
 
 ###
 
@@ -31,9 +32,9 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:8001/api/test_auth_token
+GET http://127.0.0.1:8000/api/test_auth_token
 Content-Type: application/json
-Authorization: token e6e1b12dbcdad1c147ef8af63ed80410cc11fca4
+Authorization: token 5490264ffb3dc1f802240c78688288be319d6551
 
 
 ###
@@ -41,7 +42,7 @@ Authorization: token e6e1b12dbcdad1c147ef8af63ed80410cc11fca4
 POST http://127.0.0.1:8000/api/token/
 Content-Type: application/json
 
-{ "email": "normaluser@test.com", "password": "user" }
+{ "email": "michele@test.com", "password": "michele" }
 
 
 

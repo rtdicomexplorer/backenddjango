@@ -10,6 +10,7 @@ from .models import FhirServer
 
 #create
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def create(request):
     print('POST create fhir request incoming')
     serializer = FhirServerSerializers(data=request.data)
@@ -31,6 +32,7 @@ def servers(request):
 
 #delete user
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def delete(request, pk):
     print('POST delete request incoming')
     server = get_object_or_404(FhirServer, pk=pk)

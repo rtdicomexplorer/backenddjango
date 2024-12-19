@@ -25,6 +25,7 @@ def signup(request):
 
 #LOGIN
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def login(request):
     print('POST login request incoming')
     user = get_object_or_404(CustomUser, email=request.data['email'])
@@ -37,7 +38,7 @@ def login(request):
 
 #user list
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
+#@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated,IsAdminUser])
 def users(request):
     print('GET user list request incoming')
@@ -46,6 +47,7 @@ def users(request):
 
 #delete user
 @api_view(['POST'])
+@permission_classes([IsAuthenticated,IsAdminUser])
 def delete(request):
     print('POST delete request incoming')
     user = get_object_or_404(CustomUser, id=request.data['id'])
