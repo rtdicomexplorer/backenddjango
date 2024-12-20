@@ -8,8 +8,8 @@ services:
       args:  
         - REQUIREMENTS_FILE=requirements.txt
     command: /app/entrypoint.sh      
-    image: base-app-image
-    container_name: baseproject-app-container
+    image: backend-app-image
+    container_name: backend-app-container
     ports:
       - "8001:8000"
     volumes:
@@ -32,7 +32,7 @@ services:
       - base_postgres_data:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
-    container_name: demo-pgadmin #you can change this
+    container_name: backend-pgadmin #you can change this
     depends_on:
       - dbbackend
     ports:
