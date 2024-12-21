@@ -18,15 +18,21 @@
 ### env example 
 
 ENVIROMENT='development'
-SECRET_KEY='5qvi$4$y16y*1q&zq=crcm6bv@qjwa*o88e7zg4xwgr1fk&dd4'
+SECRET_KEY='5qvi$4$y16y*1q&zq=crcm6bv@qjw)*o88e7zg4xwgr1fk&dd4'
 ENCRYPT_KEY = '1232145346315jlk1jklfn2lj3rlk1mflkj3löjrflm3o'
 DBNAME= 'basedb'
 DBUSER= 'postgres'
 DBPASSWORD= 'postgres'
 PGEMAIL='pgadmin4@pgadmin.org'
 PGPASSWORD='root'
-LOGIN_EMAIL='michele@test.com'
-LOGIN_PASSWORD='admin1234'
+LOGIN_EMAIL='test@test.com'
+LOGIN_PASSWORD='admin'
+FHIR_NAME='hapi_demo'
+FHIR_HOST='https://hapi.fhir.org/baseR4/'
+FHIR_DESCR='hapi fhir demo which supports R4'
+PACS_NAME='dicomserver'
+PACS_HOST='www.dicomserver.co.uk'
+PACS_PORT='104'
 
 
 
