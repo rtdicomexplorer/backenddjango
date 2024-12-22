@@ -1,0 +1,429 @@
+### steps
+- 1- python -m venv venv
+- 2- venv\Scripts\activate
+- 2.1 - python.exe -m pip install --upgrade pip
+- 3- pip install django
+- 4- pip install djangorestframework
+- 5- django-admin startproject base .  
+- 7- python manage.py startapp api   
+- 8 -  settings.py->
+		Installed_Apps:  add 'api', 'rest_framework'
+-9 - Create custom user in models.py, if Custom User has an imagefield, it needs to install pillow
+-	9.1. Register the CustomUser in Addmin.py
+-	9.2. settings.py  Set AUTH_USER_MODELS = 'api.CustomUser' 
+	9.3 remove db if necessary
+	9.4 python manage.py makemigrations
+	9.5 python manage.py migrate
+-10 Create command to seeding the DB
+-	10.1 api/management/command:
+-			seed_db.py
+-11 insert first user  python manage.py seed_db 	
+-12 create .env file like this:
+					ENVIROMENT='development'
+					SECRET_KEY='5qvi$4$y16y*1q&zq=crcm6bv@qjw)*o88e7zg4xwgr1fk&dd4'
+					ENCRYPT_KEY = '1232145346315jlk1jklfn2lj3rlk1mflkj3löjrflm3o'
+					DBNAME= 'basedb'
+					DBUSER= 'postgres'
+					DBPASSWORD= 'postgres'
+					PGEMAIL='pgadmin4@pgadmin.org'
+					PGPASSWORD='root'
+					LOGIN_EMAIL='test@test.com'
+					LOGIN_PASSWORD='admin'
+-13 update settings.py to check the enviroment:
+-14 added beseproject/media/avatars    for default user avatars
+-15 create statisticsfile python manage.py collectstatic --noinput 
+-  			15.1 we need befor to declare them in settings.py like:
+					STATIC_URL = 'static/'
+					STATICFILES_DIRS = [ BASE_DIR / 'static' ]
+					STATIC_ROOT = BASE_DIR / 'staticfiles'
+					MEDIA_URL = 'media/'
+					MEDIA_ROOT = BASE_DIR / 'media' 
+					
+##########DOCKER NOW
+		
+		
+16- adding dockerfile:
+  "
+		FROM python:3.11.9
+
+		ENV PYTHONDONTWRITEBYTECODE=1
+		ENV PYTHONUNBUFFERED=1
+
+		WORKDIR /app
+
+		ARG REQUIREMENTS_FILE
+
+		COPY ./$REQUIREMENTS_FILE ./
+
+		RUN pip install --upgrade pip
+		RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir
+
+		COPY . .
+		EXPOSE 8000
+	"
+16.1    Add also .dockerignore (to esclude all not necessary files)
+		"
+			venv
+			.env
+			db.sqlite3
+		"		
+17- adding docker-compose
+	"
+		name: django-backend-project
+
+		services:
+		  app:
+			build:
+			  context: .
+			  dockerfile: dockerfile
+			  args:  
+				- REQUIREMENTS_FILE=requirements.txt
+			command: /app/entrypoint.sh      
+			image: base-app-image
+			container_name: baseproject-app-container
+			ports:
+			  - "8001:8000"
+			volumes:
+			- .:/app
+			env_file:
+			  - .env
+			depends_on:
+			  - db
+		  dbbackend:
+			image: postgres:15.10
+			container_name: postgres_container
+			ports:
+			  - "5432:5432"
+			environment:
+			  POSTGRES_DB: ${DBNAME}
+			  POSTGRES_USER: ${DBUSER}
+			  POSTGRES_PASSWORD: ${DBPASSWORD}
+			restart: unless-stopped
+			volumes:
+			  - base_postgres_data:/var/lib/postgresql/data
+		  pgadmin:
+			image: dpage/pgadmin4
+			container_name: demo-pgadmin #you can change this
+			depends_on:
+			  - db
+			ports:
+			  - "5051:80"
+			environment:
+			  PGADMIN_DEFAULT_EMAIL: ${PGEMAIL}
+			  PGADMIN_DEFAULT_PASSWORD: ${PGPASSWORD}
+			restart: unless-stopped
+			volumes:
+			  - pg-admin-data:/var/lib/pgadmin
+		volumes:
+		  base_postgres_data:
+		  pg-admin-data:
+	"
+18- Adding entrypointsh
+	#!/bin/sh
+	python manage.py collectstatic --noinput
+	python manage.py makemigrations
+	python manage.py migrate
+	python manage.py set_db
+	python manage.py runserver 0.0.0.0:8000 
+
+
+
+#########PRODUCTION
+19. Replace in the .env file "development" with "production"
+20. Here we will use Postgres, forthat we need to install the driver : "pip install psycopg2-binary"
+
+#####in production we need the web server for django (gunicorn???) and a tool which manage the static files (whitenoise)
+21- pip install whitenoise
+		21 -1  adding 'whitenoise.middleware.WhiteNoiseMiddleware' in settings.py
+
+
+
+
+#####API SIGNUP/LOGIN ecc
+
+22- Createing serializers for our CustomUser Model, here we need to declare the fields which we like to modify or show:
+			"
+			class CustomUserSerializers(serializers.ModelSerializer):
+			class Meta(object):
+				model = CustomUser
+				fields = ['id', 'email', 'password', 'name', 'is_superuser', 'is_staff', 'is_active']
+			"
+
+23- Update views.py with he new endpoint (login, signup, delete, list)
+
+24- Creating urls.py with the urls to the new endpoint from views.py
+25. Add the api.urls to baseproject urls
+		"urlpatterns = [
+						path('admin/', admin.site.urls),
+						path('api/', include('api.urls')),
+						]
+		"
+26- create a test.rest to check the urls.
+  
+26.1  It's running also in production
+
+
+################# AUTH token
+27- adding in settings.py
+		1- 'rest_framework.authtoken'  in INSTALLED_APPS
+		2- REST_FRAMEWORK like this:
+		"
+		REST_FRAMEWORK = {
+				'DEFAULT_AUTHENTICATION_CLASSES': (
+					 'rest_framework.authentication.BasicAuthentication',
+					'rest_framework.authentication.SessionAuthentication'
+				)   
+			}
+		"	
+28- Update the .views endpoint with the use of token:
+		SIGNUP:
+			"
+				user.save()
+				token = Token.objects.create(user=user)
+				return JsonResponse({'message': 'user created', 'user': serializer.data, 'token':token.key})
+			"
+		LOGIN:
+			"
+				serializer = CustomUserSerializers(user)
+				token, created = Token.objects.get_or_create(user=user)
+				return JsonResponse({'message': "user logged in", 'user': serializer.data, 'token':token.key, 'created': created})
+			"
+		test_auth_token:
+		"
+			@api_view(['GET'])
+			@authentication_classes([SessionAuthentication,TokenAuthentication])
+			@permission_classes([IsAuthenticated])
+			def test_auth_token(request):  
+				return JsonResponse({'message': 'Test passed for', 'user': request.user.email})
+		"
+29- adding a new urls for testing:
+	"
+		path('test_auth_token/',test_auth_token)
+	"
+	"
+		GET http://127.0.0.1:8000/api/test_auth_token
+		Content-Type: application/json
+		Authorization: token b414269362d563e4c7c71f7d978ad19bf5892852
+	"
+
+############# JWT #################
+
+30. pip install djangorestframework-simplejwt
+
+31. update settings.py
+		- 31.1 in INSTALLED_APPS   adding   
+				'rest_framework_simplejwt'
+		- 31.2 in  REST_FRAMWORK->DEFAULT_AUTHENTICATION_CLASSES adding:
+				 'rest_framework_simplejwt.authentication.JWTAuthentication'
+
+		- 31.3 adding 
+				SIMPLE_JWT = {
+					"ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+					"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+					"AUTH_HEADER_TYPES": ("Bearer",),
+				}
+
+32. Adding endpoint:
+				"
+				    path('test_auth_token/',test_auth_token),
+					path('token/',TokenObtainPairView.as_view(), name='token_obtain_pair'),
+					path('token/refresh',TokenRefreshView.as_view(), name='token_refresh'),
+				"
+				
+33. test.rest		
+			"
+			
+POST http://127.0.0.1:8000/api/token/
+Content-Type: application/json
+
+{ "email": "test@test.com", "password": "admin" }
+
+
+
+###
+
+POST http://127.0.0.1:8000/api/token/refresh
+Content-Type: application/json
+
+{ 
+ "refresh": "eyJhbGciOiJIUzI1NiI...."
+
+}
+			
+"
+
+34. Access to some APIs just for ADMIN:
+	34.1 adding decorator to the endpoint  like:
+	"
+		#user list
+		@api_view(['GET'])
+		@authentication_classes([TokenAuthentication])
+		@permission_classes([IsAuthenticated,IsAdminUser])
+		def users(request):
+			print('GET user list request incoming')
+			userList = CustomUser.objects.values()
+			return JsonResponse({'users list: ': list(userList)})
+	"
+	
+##################################################
+##################MODEL FHIR SErver
+1. in models.py create a newmodel (FhirServer)
+2. register the new model in admin.py
+3. execute makemigration and migrate
+
+				
+- 8- after... we need other packages (pip install -r requirements)
+
+
+##############using Authentication TOKEN and JWT:
+
+
+1- TOKEN:  custom User:
+		LOGIN  return  also an Authorization Token 
+		
+		now we can use this token for the API with TokenAuthentication:
+		endpoint userlist:
+		
+		#user list
+		"
+		@api_view(['GET'])
+		def users(request):
+			print('GET user list request incoming')
+			userList = CustomUser.objects.values()
+			return JsonResponse({'users list: ': list(userList)})"
+		
+		Here no authentication is requested:
+		GET http://127.0.0.1:8000/api/users
+		Content-Type: application/json
+		
+		
+	Now an authentication must be provided	
+		"
+		#user list
+		@api_view(['GET'])
+		@permission_classes([IsAuthenticated])
+		def users(request):
+			print('GET user list request incoming')
+			userList = CustomUser.objects.values()
+			return JsonResponse({'users list: ': list(userList)})
+		"
+	
+		For the normal user get the jwt token
+		
+			POST http://127.0.0.1:8000/api/token/
+			Content-Type: application/json
+
+			{ "email": "normaluser@test.com", "password": "user" }
+		
+		and can use the access token to get the results
+
+			GET http://127.0.0.1:8000/api/users
+			Content-Type: application/json
+			Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NDUzNDg5LCJpYXQiOjE3MzQ0NTMxODksImp0aSI6IjZmYjRhOGM2MDcxMDQwM2I4ZmQ3NmJjMjczMGY4ZGI2IiwidXNlcl9pZCI6M30.zOaqvdmS-8e3xspsZC5XEVN7KD0KvmPq0hIKxnXRFS8
+	
+		It is running because the first default authentication in settings.py it the 
+								rest_framework_simplejwt.authentication.JWTAuthentication
+		
+		If we specifiy the type of authentication (TokenAuthentication):
+		
+			"
+			#user list
+			@api_view(['GET'])
+			@authentication_classes([TokenAuthentication])
+			@permission_classes([IsAuthenticated])
+			def users(request):
+				print('GET user list request incoming')
+				userList = CustomUser.objects.values()
+				return JsonResponse({'users list: ': list(userList)})
+			
+			"
+		the authorization must change also in the api request
+		
+			"
+			
+				GET http://127.0.0.1:8000/api/users
+				Content-Type: application/json
+				Authorization: token e93a510a04862955279b8ac1a214ef1cee4aeebd
+
+			"
+			
+		Normal user is not admin, we can also add define if an api is accessible just for admin:
+		
+		#user list
+		@api_view(['GET'])
+		@authentication_classes([TokenAuthentication])
+		@permission_classes([IsAuthenticated,IsAdminUser])
+		def users(request):
+			print('GET user list request incoming')
+			userList = CustomUser.objects.values()
+			return JsonResponse({'users list: ': list(userList)})
+		
+		
+		now just an admin user can access to this api with token.
+		
+			{
+			  "detail": "You do not have permission to perform this action."
+			}
+			
+
+JWT
+	we have to add just the permission_class decorator to the api
+	@permission_classes([IsAuthenticated, IsAdminUser])  with admin or not
+	
+	in this case because the first default authentication is jwt, the api needs the jwt token .
+
+
+if we added the permission class  requested in REST_FRAMEWORK:
+
+
+1- in settings.py adding 
+			- REST_FRAMEWORK = {
+						 'DEFAULT_PERMISSION_CLASSES':(
+								'rest_framework.permissions.IsAuthenticated',
+								),
+					}
+			-'DEFAULT_AUTHENTICATION_CLASSES': (
+							'rest_framework_simplejwt.authentication.JWTAuthentication',
+							'rest_framework.authentication.BasicAuthentication',
+							'rest_framework.authentication.SessionAuthentication'
+						)   
+
+It is not more necessary to specify that for each api..
+
+				#user list
+				@api_view(['GET'])
+				@permission_classes([....., IsAdminUser])
+				def servers(request):
+					print('GET server list request incoming')
+					userList = FhirServer.objects.values()
+					return JsonResponse({'server list: ': list(userList)})
+
+####CUSTOMIZE the JWT:
+  It is possible to insert other information, not just the default, like email, just following the link:
+			https://django-rest-framework-simplejwt.readthedocs.io/en/latest/customizing_token_claims.html
+		Creating a new TokenObtainSerializer:
+		"
+		class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+			@classmethod
+			def get_token(cls, user):
+				token = super().get_token(user)
+				token['email'] = user.email
+				return token
+		"
+	and use this serializer instead the default in settings:
+	"
+		SIMPLE_JWT = {
+			"ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+			"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+			"AUTH_HEADER_TYPES": ("Bearer",),
+			"TOKEN_OBTAIN_SERIALIZER": "api.serializers.MyTokenObtainPairSerializer",
+		}
+	"
+	
+### COnstrain 2 fields in a model, for example fhirserver wth same combination name-host are not possible:
+in the model:  adding  "
+							   class Meta:
+									verbose_name_plural = "FhirServers"
+									unique_together = ('name', 'host',)
+
+						"
