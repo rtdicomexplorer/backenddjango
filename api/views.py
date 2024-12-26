@@ -8,6 +8,9 @@ from .serializers import CustomUserSerializers
 from rest_framework.authtoken.models import Token
 
 from .models import CustomUser
+import base64
+from django.conf import settings
+ 
 
 #SIGNUP
 @api_view(['POST'])
@@ -45,18 +48,39 @@ def users(request):
     userList = CustomUser.objects.values()
     return JsonResponse({'users list: ': list(userList)})
 
-#delete user
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def delete(request):
-    print('POST delete request incoming')
-    user = get_object_or_404(CustomUser, id=request.data['id'])
+
+#GET user
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user(request, pk):
+    print('GET user request incoming')
+    user = get_object_or_404(CustomUser, pk=pk)
     if not user:
          return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
-    if user.is_superuser:
-        return JsonResponse({"message": "Unable to delete superuser", "status":status.HTTP_401_UNAUTHORIZED})  
+    
+    img_url = user.image.url
+
+    if user.image.url.startswith('/') or user.image.url.startswith("\\"):
+        img_url = user.image.url[1:]
+
+    img_path = settings.BASE_DIR / img_url
+    print('url',img_path)
+
+    img_file = open(img_path, "rb")
+    img64 =  base64.b64encode(img_file.read()).decode('utf-8')
+    return JsonResponse({"message": img64, "status":status.HTTP_200_OK})
+
+
+#delete user
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated,IsAdminUser])
+def delete(request,pk):
+    print('DELETE user request incoming')
+    user = get_object_or_404(CustomUser, pk=pk)
+    if not user:
+         return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
     user.delete()
-    return JsonResponse({"message": "user removed "+user.email, "status":status.HTTP_200_OK})
+    return JsonResponse({"user data": user, "status":status.HTTP_200_OK})
 
 
 
