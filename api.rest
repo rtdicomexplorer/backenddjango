@@ -3,7 +3,7 @@
 POST http://127.0.0.1:8000/api/signup/
 Content-Type: application/json
 
-{  "email": "michele@test.com", "password": "michele", "is_staff":"True"  }
+{  "email": "michele2@test.com", "password": "michele", "is_staff":"True"  }
 
 
 ###
@@ -20,8 +20,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 GET http://127.0.0.1:8000/api/users
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NjE5NzYyLCJpYXQiOjE3MzQ2MTk0NjIsImp0aSI6IjQ2ZGY2MzRkZTVmNDQyMjM5ZmE2YmRmYTNmYjZhZDNkIiwidXNlcl9pZCI6MywiZW1haWwiOiJtaWNoZWxlQHRlc3QuY29tIn0.C_e_FWB3Uoj1WKfEpExkeePw64xW48zWEz_GtXDdDCE
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1Mzc5NjA4LCJpYXQiOjE3MzUzNzkzMDgsImp0aSI6IjFkMzNmZDE5N2RmNjQwM2ZhY2E4NjY5OTdjNWRjNjM1IiwidXNlcl9pZCI6MTMsImVtYWlsIjoibWljaGVsZTJAdGVzdC5jb20ifQ.5taQk6y4nzo9o38TbNyE9acNkwCsMQmZLxndwDQK1NM
 ###
 
 POST http://127.0.0.1:8000/api/delete/
@@ -42,7 +41,7 @@ Authorization: token 5490264ffb3dc1f802240c78688288be319d6551
 POST http://127.0.0.1:8000/api/token/
 Content-Type: application/json
 
-{ "email": "michele@test.com", "password": "michele" }
+{  "email": "michele2@test.com", "password": "michele"}
 
 
 

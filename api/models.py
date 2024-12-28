@@ -23,7 +23,7 @@ class CustomUserManager(UserManager):
     def create_superuser(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('image', "avatars/user.png")
+        extra_fields.setdefault('image', "default/user.png")
         return self._create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser):

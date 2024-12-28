@@ -23,8 +23,23 @@ def signup(request):
         user.set_password(request.data['password'])
         user.save()
         token = Token.objects.create(user=user)
-        return JsonResponse({'message': 'user created', 'user': serializer.data, 'token':token.key})
-    return JsonResponse(serializer.errors, status=status.HTTP_200_OK)
+        return JsonResponse({'message': 'user created', 'status': status.HTTP_201_CREATED})
+    
+    error = str(list(serializer.errors.values())[0][0])
+    return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
+
+
+
+# @api_view(['POST'])
+def signupprofilephoto(request, pk):
+    print('POST sign profile photo request incoming')
+    user = get_object_or_404(CustomUser, pk=pk)
+    if not user:
+         return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
+    user.image = request.data
+    user.save()
+    return JsonResponse({'message': 'profile updated', 'status': status.HTTP_201_CREATED})
+    
 
 #LOGIN
 @api_view(['POST'])
@@ -36,7 +51,7 @@ def login(request):
         return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})   
     serializer = CustomUserSerializers(user)
     token, created = Token.objects.get_or_create(user=user)
-    return JsonResponse({'message': "user logged in", 'user': serializer.data, 'token':token.key, 'created': created})
+    return JsonResponse({'message': "user logged in", 'user': serializer.data, 'token':token.key, 'created': created,'status': status.HTTP_201_CREATED})
 
 
 #user list
@@ -58,10 +73,14 @@ def user(request, pk):
     if not user:
          return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
     
-    img_url = user.image.url
-
-    if user.image.url.startswith('/') or user.image.url.startswith("\\"):
-        img_url = user.image.url[1:]
+    img_url = 'media/default/user.png'
+    try:
+        if user.image.url.startswith('/') or user.image.url.startswith("\\"):
+            img_url = user.image.url[1:]
+        else:
+            img_url = user.image.url
+    except:
+        img_url = 'media/default/user.png'
 
     img_path = settings.BASE_DIR / img_url
     print('url',img_path)

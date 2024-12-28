@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'api'
+    'api',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'baseproject.urls'
@@ -88,7 +90,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication'
+        # 'rest_framework.authentication.SessionAuthentication',
     )   
 }
 
@@ -172,3 +174,29 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "TOKEN_OBTAIN_SERIALIZER": "api.serializers.MyTokenObtainPairSerializer",
 }
+
+# CORS_ALLOWED_ORIGINS = [
+# "http://localhost:4200",
+# "http://127.0.0.1:4200",
+# ]
+
+# CORS_ALLOW_METHODS = [
+# 'DELETE',
+# 'GET',
+# 'OPTIONS',
+# 'PATCH',
+# 'POST',
+# 'PUT',
+# ]
+
+# CORS_ALLOW_HEADERS = [
+# 'accept',
+# 'accept-encoding',
+# 'authorization',
+# 'content-type',
+# 'dnt',
+# 'origin',
+# 'user-agent',
+# 'x-csrftoken',
+# 'x-requested-with',
+# ]
