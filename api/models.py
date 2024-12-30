@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.db import models
 from django.utils import timezone
-
+from django.conf import settings
 
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
@@ -28,7 +28,7 @@ class CustomUserManager(UserManager):
 
 class CustomUser(AbstractBaseUser):
     username = None
-    image = models.ImageField(upload_to = 'avatars/', null=True, blank=True)
+    image = models.ImageField(upload_to = settings.AVATARS_URL, null=True, blank=True)
     email = models.EmailField(blank=True, default='', unique=True)
     name = models.CharField(max_length=255, blank=True, default='')
 

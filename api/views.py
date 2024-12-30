@@ -10,7 +10,8 @@ from rest_framework.authtoken.models import Token
 from .models import CustomUser
 import base64
 from django.conf import settings
- 
+import os
+from django.core.files.storage import FileSystemStorage  
 
 #SIGNUP
 @api_view(['POST'])
@@ -23,23 +24,37 @@ def signup(request):
         user.set_password(request.data['password'])
         user.save()
         token = Token.objects.create(user=user)
-        return JsonResponse({'message': 'user created', 'status': status.HTTP_201_CREATED})
+        return JsonResponse({'message': user.id, 'status': status.HTTP_201_CREATED})
     
     error = str(list(serializer.errors.values())[0][0])
     return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 
-# @api_view(['POST'])
-def signupprofilephoto(request, pk):
-    print('POST sign profile photo request incoming')
+@api_view(['POST'])
+def signupprofileavatar(request, pk):
+    print('PUT sign profile photo request incoming')
     user = get_object_or_404(CustomUser, pk=pk)
     if not user:
          return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
-    user.image = request.data
-    user.save()
-    return JsonResponse({'message': 'profile updated', 'status': status.HTTP_201_CREATED})
-    
+    return handle_uploaded_file(request, user)
+
+   
+
+def handle_uploaded_file(request, user):
+    key ='file'
+    if key in request.FILES:
+        files = request.FILES.getlist(key)
+        saveFolder = os.path.join(settings.MEDIA_AVATAR)
+        for file in files:
+            try:
+                FileSystemStorage(location=saveFolder).save(file.name, file)
+                user.image = settings.AVATARS_URL+file.name #  (os.path.join(saveFolder, file.name),File().read())
+                user.save()
+                return JsonResponse({'message': 'avatar uploaded'}, status=status.HTTP_201_CREATED) 
+            except Exception as e:
+                return JsonResponse({'message': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)   
+
 
 #LOGIN
 @api_view(['POST'])

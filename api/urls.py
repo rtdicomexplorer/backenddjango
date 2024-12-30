@@ -1,4 +1,4 @@
-from .views import login, signup, delete, users, test_auth_token, user, signupprofilephoto
+from .views import login, signup, delete, users, test_auth_token, user, signupprofileavatar
 from django.urls import path
 
 from rest_framework_simplejwt.views import( TokenObtainPairView, TokenRefreshView)
@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import( TokenObtainPairView, TokenRefreshVie
 urlpatterns=[
     path ('login/', login),
     path ('signup/', signup),
-    path ('signupphoto<int:pk>', signupprofilephoto),
+    path ('signupavatar/<int:pk>', signupprofileavatar),
     path ('users', users),
     path('user/<int:pk>', user),
     path ('delete/', delete),
