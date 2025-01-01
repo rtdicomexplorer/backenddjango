@@ -12,5 +12,6 @@ COPY ./$REQUIREMENTS_FILE ./
 RUN pip install --upgrade pip
 RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir
 
-COPY . .
+COPY . /app
+
 EXPOSE 8000
