@@ -33,13 +33,13 @@ def signup(request):
 
 @api_view(['POST'])
 def signupprofileavatar(request, pk):
-    print('PUT sign profile photo request incoming')
+    print('POST signup-profile photo request incoming', pk)
     user = get_object_or_404(CustomUser, pk=pk)
     if not user:
          return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
+    print ("User found:", user)
     return handle_uploaded_file(request, user)
 
-   
 
 def handle_uploaded_file(request, user):
     key ='file'
