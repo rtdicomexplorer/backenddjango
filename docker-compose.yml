@@ -8,7 +8,7 @@ services:
       args:  
         - REQUIREMENTS_FILE=requirements.txt
     command: /app/entrypoint.sh      
-    image: backend-app-image
+    image: backend-app-image:$TAG
     container_name: backend-app-container
     ports:
       - "8001:8000"
