@@ -98,8 +98,6 @@ def user(request, pk):
         img_url = 'media/default/user.png'
 
     img_path = settings.BASE_DIR / img_url
-    print('url',img_path)
-
     img_file = open(img_path, "rb")
     img64 =  base64.b64encode(img_file.read()).decode('utf-8')
     return JsonResponse({"message": img64, "status":status.HTTP_200_OK})

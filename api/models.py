@@ -55,7 +55,7 @@ class CustomUser(AbstractBaseUser):
     def get_short_name(self):
         return self.name or self.email
     def __str__(self):
-        return self.email
+        return self.email or self.name
     
     def has_perm(self, perm, obj=None):
         return self.is_superuser
