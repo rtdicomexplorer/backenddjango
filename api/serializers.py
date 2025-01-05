@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import CustomUser, FhirServer
+from .models import CustomUser, FhirServer, DicomServer
 
 class CustomUserSerializers(serializers.ModelSerializer):
     class Meta(object):
@@ -9,6 +9,11 @@ class CustomUserSerializers(serializers.ModelSerializer):
 
 
 class FhirServerSerializers(serializers.ModelSerializer):
+    class Meta(object):
+        model = DicomServer
+        fields = ['aetitle', 'description', 'host', 'port']
+
+class DicomServerSerializers(serializers.ModelSerializer):
     class Meta(object):
         model = FhirServer
         fields = ['name', 'description', 'host', 'port']

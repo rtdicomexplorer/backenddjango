@@ -56,6 +56,24 @@ def handle_uploaded_file(request, user):
                 return JsonResponse({'message': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)   
 
 
+
+#UPDATE user
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update(request, pk):
+    print('Update user request incoming')
+    user = get_object_or_404(CustomUser, pk=pk)
+    if not user:
+         return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
+    user.name = request.data['name']
+    user.is_staff = request.data['is_staff']
+    user.save()
+    return JsonResponse({'message': user.id, 'status': status.HTTP_201_CREATED})
+
+
+
+
+
 #LOGIN
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -100,7 +118,9 @@ def user(request, pk):
     img_path = settings.BASE_DIR / img_url
     img_file = open(img_path, "rb")
     img64 =  base64.b64encode(img_file.read()).decode('utf-8')
-    return JsonResponse({"message": img64, "status":status.HTTP_200_OK})
+    serializer = CustomUserSerializers(user)
+    return JsonResponse({"avatar": img64, "data": serializer.data, "status":status.HTTP_200_OK})
+
 
 
 #delete user

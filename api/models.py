@@ -83,3 +83,23 @@ class FhirServer(models.Model):
     
     def __str__(self):
         return self.name
+
+class DicomServer(models.Model):
+    aetitle = models.CharField(max_length=16)
+    description = models.TextField(blank=True, null=True)
+    host = models.CharField(max_length=255)
+    port = models.PositiveIntegerField(null=True)
+    image = models.ImageField(upload_to='server/', blank=True, null=True)
+    added_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+            verbose_name_plural = "DicomScps"
+            unique_together = ('aetitle',)
+
+
+    @property
+    def get_url(self):
+        return self.host+':'+self.port
+    
+    def __str__(self):
+        return self.aetitle
