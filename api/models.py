@@ -85,15 +85,15 @@ class FhirServer(models.Model):
         return self.name
 
 class DicomServer(models.Model):
-    aetitle = models.CharField(max_length=16)
+    aetitle = models.CharField(max_length=16, blank=False, null=False)
     description = models.TextField(blank=True, null=True)
-    host = models.CharField(max_length=255)
-    port = models.PositiveIntegerField(null=True)
+    host = models.CharField(max_length=255, blank=False, null=False)
+    port = models.PositiveIntegerField(null=False)
     image = models.ImageField(upload_to='server/', blank=True, null=True)
     added_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-            verbose_name_plural = "DicomScps"
+            verbose_name_plural = "DicomServers"
             unique_together = ('aetitle',)
 
 
