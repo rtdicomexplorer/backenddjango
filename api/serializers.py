@@ -8,15 +8,15 @@ class CustomUserSerializers(serializers.ModelSerializer):
         fields = ['id', 'email', 'password', 'name', 'is_superuser', 'is_staff', 'is_active']
 
 
-class FhirServerSerializers(serializers.ModelSerializer):
-    class Meta(object):
-        model = DicomServer
-        fields = ['aetitle', 'description', 'host', 'port']
-
 class DicomServerSerializers(serializers.ModelSerializer):
     class Meta(object):
+        model = DicomServer
+        fields = ['id', 'aetitle', 'description', 'host', 'port', 'added_on']
+
+class FhirServerSerializers(serializers.ModelSerializer):
+    class Meta(object):
         model = FhirServer
-        fields = ['name', 'description', 'host', 'port']
+        fields = ['id','name', 'description', 'host', 'port']
 
 
 

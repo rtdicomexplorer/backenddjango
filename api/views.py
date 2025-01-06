@@ -94,7 +94,8 @@ def login(request):
 def users(request):
     print('GET user list request incoming')
     userList = CustomUser.objects.values()
-    return JsonResponse({'users list: ': list(userList)})
+    serializer = CustomUserSerializers(userList, many = True)
+    return JsonResponse({'users list: ': serializer.data})
 
 
 #GET user
