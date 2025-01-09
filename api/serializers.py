@@ -5,7 +5,7 @@ from .models import CustomUser, FhirServer, DicomServer
 class CustomUserSerializers(serializers.ModelSerializer):
     class Meta(object):
         model = CustomUser
-        fields = ['id', 'email', 'password', 'name', 'is_superuser', 'is_staff', 'is_active']
+        fields = ['id', 'email', 'password', 'name', 'is_superuser', 'is_staff', 'is_active', 'date_joined']
 
 
 class DicomServerSerializers(serializers.ModelSerializer):

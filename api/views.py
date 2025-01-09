@@ -95,8 +95,7 @@ def users(request):
     print('GET user list request incoming')
     userList = CustomUser.objects.values()
     serializer = CustomUserSerializers(userList, many = True)
-    return JsonResponse({'users list: ': serializer.data})
-
+    return JsonResponse({'data':serializer.data,'status':status.HTTP_200_OK})
 
 #GET user
 @api_view(['GET'])
