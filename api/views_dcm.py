@@ -16,7 +16,34 @@ def servers(request):
     return JsonResponse({'data': serializer.data,  "status":status.HTTP_200_OK})
 
 
-#SIGNUP
+#GET server
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def server(request, pk):
+    print('GET server request incoming')
+    dcm_server = get_object_or_404(DicomServer, pk=pk)
+    if not dcm_server:
+         return JsonResponse({"message": "missing server", "status":status.HTTP_404_NOT_FOUND})  
+    serializer = DicomServerSerializers(dcm_server)
+
+    return JsonResponse({"data": serializer.data, "status":status.HTTP_200_OK})
+
+#UPDATE server
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update(request, pk):
+    print('Update server request incoming')
+    dcm_server = get_object_or_404(DicomServer, pk=pk)
+    if not dcm_server:
+         return JsonResponse({"message": "missing server", "status":status.HTTP_404_NOT_FOUND})  
+    dcm_server.aetitle = request.data['aetitle']
+    dcm_server.port = request.data['port']
+    dcm_server.description = request.data['description']
+    dcm_server.host = request.data['host']
+    dcm_server.save()
+    return JsonResponse({'message': dcm_server.id, 'status': status.HTTP_201_CREATED})
+
+#addserver
 @api_view(['POST'])
 def addserver(request):
     print('POST add server request incoming')
