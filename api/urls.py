@@ -11,7 +11,7 @@ urlpatterns=[
     path ('users', users),
     path('user/<int:pk>', user),
     path('user/update/<int:pk>', update),
-    path ('delete/', delete),
+    path ('user/delete/<int:pk>', delete),
     path('test_auth_token/',test_auth_token),
     path('token/',TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh',TokenRefreshView.as_view(), name='token_refresh'),

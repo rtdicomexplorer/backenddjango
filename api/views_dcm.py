@@ -30,7 +30,7 @@ def server(request, pk):
 
 #UPDATE server
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,IsAdminUser])
 def update(request, pk):
     print('Update server request incoming')
     dcm_server = get_object_or_404(DicomServer, pk=pk)
@@ -53,10 +53,23 @@ def addserver(request):
             
             aetitle = servserializer.validated_data['aetitle']
             servserializer.save()
-            server = DicomServer.objects.get(aetitle=request.data['aetitle'])
-            server.save()
-            return JsonResponse({'data': server.id, 'status': status.HTTP_201_CREATED})
+            dcm_server = DicomServer.objects.get(aetitle=request.data['aetitle'])
+            dcm_server.save()
+            return JsonResponse({'data': dcm_server.id, 'status': status.HTTP_201_CREATED})
         except Exception as e:
             print (e)
     error = str(list(servserializer.errors.values())[0][0])
     return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
+
+
+#delete SERVER
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated,IsAdminUser])
+def delete(request,pk):
+    print('DELETE server request incoming')
+    dcm_server = get_object_or_404(DicomServer, pk=pk)
+    if not dcm_server:
+         return JsonResponse({"message": "missing server", "status":status.HTTP_404_NOT_FOUND})  
+    dcm_server.delete()
+    return JsonResponse({"message":"server deleted" , "status":status.HTTP_200_OK})
+

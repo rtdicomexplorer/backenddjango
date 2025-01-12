@@ -132,7 +132,7 @@ def delete(request,pk):
     if not user:
          return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
     user.delete()
-    return JsonResponse({"user data": user, "status":status.HTTP_200_OK})
+    return JsonResponse({"message":"user deleted" , "status":status.HTTP_200_OK})
 
 
 
