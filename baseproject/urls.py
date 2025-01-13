@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('fhir/', include('api.urls_fhir')),
-    path('dicom/', include('api.urls_dcm')),
+    path('dicom/', include('api.urls_dcm_server')),
 
 
 ]

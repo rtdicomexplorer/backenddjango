@@ -1,4 +1,4 @@
-from .views_dcm import servers, addserver, server, update, delete
+from .views_dcm_server import servers, addserver, server, update, delete
 from django.urls import path
 
 urlpatterns=[
