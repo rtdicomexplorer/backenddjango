@@ -7,7 +7,10 @@ from .serializers import DicomServerSerializers
 from .models import DicomServer
 from pynetdicom import AE,debug_logger
 
+from django.conf import settings
 
+from .dicom_comm_commands import execute_echo, execute_c_find
+debug_logger()
 #echo command
 @api_view(['POST'])
 def echo_command(request):
@@ -15,13 +18,13 @@ def echo_command(request):
     
     try:
         servserializer = DicomServerSerializers(data=request.data)
-        aetitle = servserializer.initial_data['aetitle']
-        host = servserializer.initial_data['host']
-        port = servserializer.initial_data['port']
-        
-        ae = AE(aetitle)
-        ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate(host, port)
+        remote_scp = servserializer.initial_data
+        local_ae = settings.LOCAL_AET
+        assoc = execute_echo(local_ae,remote_scp)
+
+        # ae = AE(aetitle)
+        # ae.add_requested_context("1.2.840.10008.1.1")
+        # assoc = ae.associate(host, port)
         if assoc.is_established:
             print("Association established with Echo SCP!")
             assoc.release()
@@ -34,4 +37,33 @@ def echo_command(request):
         print (e)
     error = str(list(servserializer.errors.values())[0][0])
     return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
+
+
+#echo command
+@api_view(['POST'])
+def find_study_command(request):
+    print('POST echo command request incoming') 
+    
+    try:
+        dcm_server = request.data['remotescp']
+        payload = request.data['payload']
+        servserializer = DicomServerSerializers(data=dcm_server)
+        remote_scp = servserializer.initial_data      
+        local_ae = settings.LOCAL_AET
+        result  = execute_c_find(local_ae,remote_scp, payload)
+        
+        message = result['message']
+        if message == '':
+            study = result['response']   
+            return JsonResponse({'data': study , 'status': status.HTTP_200_OK})
+        else:
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+
+    except Exception as e:
+        print (e)
+    error = str(list(servserializer.errors.values())[0][0])
+    return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
+
+
+
 

@@ -15,14 +15,18 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
 load_dotenv(override=True)
+
+
+LOCAL_AET = os.getenv('LOCAL_AETITLE', default='localscu')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY') # 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc'
+SECRET_KEY = os.getenv('SECRET_KEY',default='123456789xyz') # 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc'
 
-ENCRYPT_KEY = os.getenv('ENCRYPT_KEY') 
+ENCRYPT_KEY = os.getenv('ENCRYPT_KEY',default='xyz987654321') 
 # SECURITY WARNING: don't run with debug turned on in production!
 
 ENVIROMENT = os.getenv('ENVIROMENT', default='development')
