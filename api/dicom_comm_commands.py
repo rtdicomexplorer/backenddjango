@@ -86,9 +86,7 @@ def execute_echo (local_scu, remote_scp):
     ass = get_association(local_scu, remote_scp)
     return ass
  
-
-
-def execute_c_find(local_scu, remote_scp, payload):
+def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
     ae = AE(ae_title=local_scu)
     ae.requested_contexts= QueryRetrievePresentationContexts[:]
     d =dcm.Dataset()
@@ -106,10 +104,8 @@ def execute_c_find(local_scu, remote_scp, payload):
     # d.add_new([0x0010,0x0020],"CS",None)
     # d.add_new([0x0010,0x0030],"DA",None)
     # d.add_new([0x0010,0x0040],"CS",None)
-    d.QueryRetrieveLevel = "STUDY"
-
-
-    studies = []
+    d.QueryRetrieveLevel = query_retrieve_level
+    items_found = []
     assoc =  ae.associate(addr= remote_scp['host'],port= remote_scp['port'], ae_title=remote_scp['aetitle'])
     count = 0
     if assoc.is_established:
@@ -118,15 +114,14 @@ def execute_c_find(local_scu, remote_scp, payload):
         
         for (status, identifier) in responses:
             if status:
-                print('C-FIND query status: 0x{0:04X}'.format(status.Status))
+                #print('C-FIND query status: 0x{0:04X}'.format( status.Status))
                 if status.Status == 0xFF00:#pending
-                    count +=1
+                    count+=1
 
-                    study = {}
+                    item = {}
                     for key in payload.keys():
-                        study[key]=str(identifier[int(payload[key]['group'],16),int(payload[key]['element'],16)].value)
-
-                    studies.append(study)    
+                        item[key]=str(identifier[int(payload[key]['group'],16),int(payload[key]['element'],16)].value)
+                    items_found.append(item)    
             else:
 
                 print('Connection timed out, was aborted or received invalid response')
@@ -136,8 +131,8 @@ def execute_c_find(local_scu, remote_scp, payload):
         # Release the association
         assoc.release()
 
-        print(count)
-        return {'message': '', 'response' : studies}
+        print('Elements found', str(count))
+        return {'message': '', 'response' : items_found}
     else:
         print('Association rejected, aborted or never connected')
         return {'message': 'Association rejected, aborted or never connected'}
