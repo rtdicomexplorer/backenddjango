@@ -23,8 +23,8 @@ def echo_command(request):
         return JsonResponse( {'message': response['message'], 'status': rsp_status})
     except Exception as e:
         print (e)
-    error = str(list(servserializer.errors.values())[0][0])
-    return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
+        error = str(list(servserializer.errors.values())[0][0])
+        return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 #find command
@@ -50,8 +50,8 @@ def find_command(request):
 
     except Exception as e:
         print (e)
-    error = str(list(servserializer.errors.values())[0][0])
-    return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
+        error = str(list(servserializer.errors.values())[0][0])
+        return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 

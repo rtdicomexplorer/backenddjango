@@ -148,7 +148,7 @@ def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
         # Release the association
         assoc.release()
 
-        print('Elements found', str(items_found.length))
+        print('Elements found', len(items_found))
         return {'message': '', 'response' : items_found}
     else:
         print('Association rejected, aborted or never connected')
