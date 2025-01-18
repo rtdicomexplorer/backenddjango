@@ -46,7 +46,7 @@ _exclusiions =[
      VideoMicroscopicImageStorage                                           ,
      VLSlideCoordinatesMicroscopicImageStorage                              ,
      VLPhotographicImageStorage                                             ,
-     VideoPhotographicImageStorage                                          ,
+     VideoPhotographicImageStorage                                         ,
      OphthalmicPhotography8BitImageStorage                                  ,
      OphthalmicPhotography16BitImageStorage                                 ,
      StereometricRelationshipStorage                                        ,
@@ -73,30 +73,45 @@ def handle_store(event,DCM_PATH):
 
 
 def get_association(local_scu, remote_scp, roles=[], handlers =[]):
-
     ae = AE(ae_title=local_scu)
     ae.add_requested_context("1.2.840.10008.1.1")
     return ae.associate(addr= remote_scp['host'],port= remote_scp['port'], ae_title=remote_scp['aetitle'])
 
-    """Returns an association with the PACS"""
-    return ae.associate(addr=server['ip'], port= server['port'],ae_title=server['aet'], ext_neg=roles, evt_handlers=handlers )
-
-
 def execute_echo (local_scu, remote_scp):
-    ass = get_association(local_scu, remote_scp)
-    return ass
+    assoc= get_association(local_scu, remote_scp)
+    status_response = False
+    message_response = ""
+    if assoc.is_established:
+        status = assoc.send_c_echo()
+        # Check the status of the verification request
+        if status:
+            # If the verification request succeeded this will be 0x0000
+            message_response ='C-ECHO request status: 0x{0:04x}'.format(status.Status)            
+            status_response = True
+        else:
+            message_response = 'Connection timed out, was aborted or received invalid response'
+        # Release the association
+        assoc.release()
+    else:
+        if assoc.is_rejected:
+            message_response = ('{0}: {1}'.format(
+                assoc.acceptor.primitive.result_str,
+                assoc.acceptor.primitive.reason_str
+            ))
+        else:
+            message_response = 'Association aborted or never connected'
+    
+    return {'status':status_response, 'message': message_response}
+
+    
  
 def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
     ae = AE(ae_title=local_scu)
     ae.requested_contexts= QueryRetrievePresentationContexts[:]
-    d =dcm.Dataset()
+    req_dataset =dcm.Dataset()
     for key in payload.keys():
-        element = payload[key]
-        dcm_group = int(element['group'],16)
-        dcm_element = int(element['element'],16)
-        vr = element['vr']
-        value = element['value']
-        d.add_new([dcm_group,dcm_element],vr,value)
+        dcm_tag = payload[key]
+        req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
 
     # #get all patients
     # #d.PatientName = 'P*'
@@ -104,26 +119,28 @@ def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
     # d.add_new([0x0010,0x0020],"CS",None)
     # d.add_new([0x0010,0x0030],"DA",None)
     # d.add_new([0x0010,0x0040],"CS",None)
-    d.QueryRetrieveLevel = query_retrieve_level
-    items_found = []
+    req_dataset.QueryRetrieveLevel = query_retrieve_level
+ 
     assoc =  ae.associate(addr= remote_scp['host'],port= remote_scp['port'], ae_title=remote_scp['aetitle'])
-    count = 0
+
     if assoc.is_established:
     # Send the C-FIND request
-        responses = assoc.send_c_find(d, StudyRootQueryRetrieveInformationModelFind)
-        
+        responses = assoc.send_c_find(req_dataset, StudyRootQueryRetrieveInformationModelFind)
+        items_found = []
         for (status, identifier) in responses:
             if status:
                 #print('C-FIND query status: 0x{0:04X}'.format( status.Status))
                 if status.Status == 0xFF00:#pending
-                    count+=1
-
                     item = {}
                     for key in payload.keys():
-                        item[key]=str(identifier[int(payload[key]['group'],16),int(payload[key]['element'],16)].value)
+                        rq_group = int(payload[key]['group'],16)
+                        rq_element = int(payload[key]['element'],16)
+                        if [rq_group, rq_element] in identifier:
+                            item[key]=str(identifier[rq_group,rq_element].value)
+                        else:
+                             print("Server does not return "+str(key))
                     items_found.append(item)    
             else:
-
                 print('Connection timed out, was aborted or received invalid response')
                 return {'message': 'Connection timed out, was aborted or received invalid response'}
                 
@@ -131,7 +148,7 @@ def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
         # Release the association
         assoc.release()
 
-        print('Elements found', str(count))
+        print('Elements found', str(items_found.length))
         return {'message': '', 'response' : items_found}
     else:
         print('Association rejected, aborted or never connected')

@@ -16,15 +16,11 @@ def echo_command(request):
         servserializer = DicomServerSerializers(data=request.data)
         remote_scp = servserializer.initial_data
         local_ae = settings.LOCAL_AET
-        assoc = execute_echo(local_ae,remote_scp)
-        if assoc.is_established:
-            print("Association established with Echo SCP!")
-            assoc.release()
-            return JsonResponse({'result': 'true' , 'status': status.HTTP_200_OK})
-        else:
-            # Association rejected, aborted or never connected
-            print("Failed to associate")
-            return JsonResponse({'result': 'false' , 'status': status.HTTP_403_FORBIDDEN})
+        response  = execute_echo(local_ae,remote_scp)
+        rsp_status =   status.HTTP_200_OK
+        if response['status'] == False:
+            rsp_status = status.HTTP_503_SERVICE_UNAVAILABLE  
+        return JsonResponse( {'message': response['message'], 'status': rsp_status})
     except Exception as e:
         print (e)
     error = str(list(servserializer.errors.values())[0][0])
