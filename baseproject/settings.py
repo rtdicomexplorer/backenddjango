@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from datetime import timedelta
+from datetime import timedelta, datetime
+import logging
 load_dotenv(override=True)
 
 
@@ -22,6 +23,62 @@ LOCAL_AET = os.getenv('LOCAL_AETITLE', default='localscu')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LOGS_DIR =  './logs/fhir_backend'  #os.path.join(BASE_DIR,'logs','fhir_backend')
+
+if not os.path.exists(LOGS_DIR):
+        os.makedirs(LOGS_DIR)
+
+log_file_name =  os.path.join(LOGS_DIR,f"{datetime.now().strftime('%Y%m%d')}.log")
+##logger
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} [{name}:{lineno}] {message}",  # other options: {module} {process:d} {thread:d}
+            "datefmt": "%Y-%m-%d_%H:%M:%S",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": f"{log_file_name}",
+            },
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console",'file'],
+            "level":"CRITICAL",
+            "propagate": True,
+        },
+         'django.request': {  
+            'handlers': ['console'],  
+            'level': 'DEBUG',  
+            'propagate': False,  
+        }, 
+            'django.server': {  
+            'handlers': ['console'],  
+            'level': 'DEBUG',  
+            'propagate': False,  
+        }, 
+        'backenddjango': {  
+            'handlers': ['file'],  
+            'level': 'DEBUG',  
+            'propagate': False,  
+        }, 
+    },
+
+}
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY',default='123456789xyz') # 'django-insecure-rj#-z^kx3j+1ay397otg6j8m_8#v^$^$jys6&41vy^&6le)ezc'
@@ -35,6 +92,10 @@ if ENVIROMENT == 'development':
     DEBUG = True
 else:
     DEBUG = False
+
+
+__logger = logging.getLogger('backenddjango')
+__logger.info(ENVIROMENT)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 CSRF_TRUSTED_ORIGINS = [ 'https://*' ]

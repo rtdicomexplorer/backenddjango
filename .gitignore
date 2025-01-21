@@ -6,3 +6,4 @@ staticfiles
 migrations
 media/avatars
 html
+logs
