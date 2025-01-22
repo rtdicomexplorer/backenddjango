@@ -8,7 +8,7 @@ services:
       args:  
         - REQUIREMENTS_FILE=requirements.txt
     command: /app/entrypoint.sh      
-    image: backend-app-image:160125
+    image: backend-app-image:200125-log
     container_name: backend-app-container
     ports:
       - "8001:8000"
@@ -54,6 +54,7 @@ services:
     volumes:
       - ./html:/usr/share/nginx/html
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/nginx:/var/log/nginx
 
 volumes:
   base_postgres_data:

@@ -23,7 +23,7 @@ LOCAL_AET = os.getenv('LOCAL_AETITLE', default='localscu')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-LOGS_DIR =  './logs/fhir_backend'  #os.path.join(BASE_DIR,'logs','fhir_backend')
+LOGS_DIR =  './logs/backend'  #os.path.join(BASE_DIR,'logs','fhir_backend')
 
 if not os.path.exists(LOGS_DIR):
         os.makedirs(LOGS_DIR)

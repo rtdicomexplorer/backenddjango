@@ -11,6 +11,9 @@ COPY ./$REQUIREMENTS_FILE ./
 
 RUN pip install --upgrade pip
 RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir
+RUN mkdir logs
+RUN mkdir logs/backend
+RUN mkdir logs/nginx
 
 COPY . /app
 
