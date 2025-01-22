@@ -34,6 +34,9 @@ from pynetdicom.presentation import StoragePresentationContexts,  QueryRetrieveP
 
 
 import pydicom as dcm
+
+import logging
+__logger = logging.getLogger('backenddjango')
 #debug_logger()
 #dicom support just 128 pres context, we need to remove some these
 _exclusiions =[
@@ -72,8 +75,9 @@ def handle_store(event,DCM_PATH):
     return 0x0000
 
 
-def get_association(local_scu, remote_scp, roles=[], handlers =[]):
+def get_association(local_scu, remote_scp, req_context=[], roles=[], handlers =[]):
     ae = AE(ae_title=local_scu)
+    ae.requested_contexts= req_context[:]
     ae.add_requested_context("1.2.840.10008.1.1")
     return ae.associate(addr= remote_scp['host'],port= remote_scp['port'], ae_title=remote_scp['aetitle'])
 
@@ -106,30 +110,21 @@ def execute_echo (local_scu, remote_scp):
     
  
 def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
-    ae = AE(ae_title=local_scu)
-    ae.requested_contexts= QueryRetrievePresentationContexts[:]
+    st= time.time()
     req_dataset =dcm.Dataset()
     for key in payload.keys():
         dcm_tag = payload[key]
         req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
-
-    # #get all patients
-    # #d.PatientName = 'P*'
-    # d.add_new([0x0010,0x0010],"PN","Pr*")#given filter
-    # d.add_new([0x0010,0x0020],"CS",None)
-    # d.add_new([0x0010,0x0030],"DA",None)
-    # d.add_new([0x0010,0x0040],"CS",None)
     req_dataset.QueryRetrieveLevel = query_retrieve_level
- 
-    assoc =  ae.associate(addr= remote_scp['host'],port= remote_scp['port'], ae_title=remote_scp['aetitle'])
 
+    assoc= get_association(local_scu, remote_scp,QueryRetrievePresentationContexts)
     if assoc.is_established:
     # Send the C-FIND request
         responses = assoc.send_c_find(req_dataset, StudyRootQueryRetrieveInformationModelFind)
         items_found = []
         for (status, identifier) in responses:
             if status:
-                #print('C-FIND query status: 0x{0:04X}'.format( status.Status))
+                __logger.debug('C-FIND query status: 0x{0:04X}'.format( status.Status))
                 if status.Status == 0xFF00:#pending
                     item = {}
                     for key in payload.keys():
@@ -138,19 +133,52 @@ def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
                         if [rq_group, rq_element] in identifier:
                             item[key]=str(identifier[rq_group,rq_element].value)
                         else:
-                             print("Server does not return "+str(key))
+                             __logger.debug("Server does not return %s",key)
                     items_found.append(item)    
             else:
-                print('Connection timed out, was aborted or received invalid response')
+                __logger.debug('Connection timed out, was aborted or received invalid response')
                 return {'message': 'Connection timed out, was aborted or received invalid response'}
-                
-
         # Release the association
         assoc.release()
 
-        print('Elements found', len(items_found))
+        elapsed_time = time.time()-st
+
+        __logger.debug('Elements found %s in %s sec', len(items_found), elapsed_time)
         return {'message': '', 'response' : items_found}
     else:
-        print('Association rejected, aborted or never connected')
+        __logger.info('Association rejected, aborted or never connected')
+        return {'message': 'Association rejected, aborted or never connected'}
+       
+
+
+ 
+def execute_c_get(local_scu, remote_scp, query_retrieve_level,payload):
+
+    roles =[]
+    st= time.time()
+    req_dataset =dcm.Dataset()
+    for key in payload.keys():
+        dcm_tag = payload[key]
+        req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
+    req_dataset.QueryRetrieveLevel = query_retrieve_level
+
+    assoc= get_association(local_scu, remote_scp,QueryRetrievePresentationContexts,roles,[(evt.EVT_C_STORE, handle_store)])
+    count = 0
+    if assoc.is_established:
+        responses = assoc.send_c_get(req_dataset, PatientRootQueryRetrieveInformationModelGet)
+        for (status, identifier) in responses:
+            count+=1
+            if status:
+                __logger.debug('C-FIND query status: 0x{0:04X}'.format( status.Status))
+            else:
+                __logger.debug('Connection timed out, was aborted or received invalid response')
+        # Release the association
+        assoc.release()
+        elapsed_time = time.time()-st
+        __logger.debug(f"GET Execution time: {elapsed_time} sec  for {count}")
+        return {'message': '', 'response' : count}
+
+    else:
+        __logger.info('Association rejected, aborted or never connected')
         return {'message': 'Association rejected, aborted or never connected'}
        
