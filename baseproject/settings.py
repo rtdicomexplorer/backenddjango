@@ -19,6 +19,9 @@ load_dotenv(override=True)
 
 
 LOCAL_AET = os.getenv('LOCAL_AETITLE', default='localscu')
+DCM_PATH = os.getenv('DCM_PATH', 'dcm_data')
+if not os.path.exists(DCM_PATH):
+    os.makedirs(DCM_PATH)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -4,7 +4,7 @@ from rest_framework import status
 from .serializers import DicomServerSerializers
 from pynetdicom import debug_logger
 from django.conf import settings
-from .dicom_comm_commands import execute_echo, execute_c_find
+from .dicom_comm_commands import execute_echo, execute_c_find, execute_c_get
 import logging
 __logger = logging.getLogger('backenddjango')
 
@@ -53,3 +53,26 @@ def find_command(request):
 
 
 
+#find command
+@api_view(['POST'])
+def get_command(request):
+    try:      
+        dcm_server = request.data['remotescp']
+        query_retrieve_level=request.data['queryretrievelevel']
+        payload = request.data['payload']
+        servserializer = DicomServerSerializers(data=dcm_server)
+        remote_scp = servserializer.initial_data      
+        local_ae = settings.LOCAL_AET
+        __logger.debug('C-Get request %s to : %s %s:%s',query_retrieve_level, remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
+        result  = execute_c_get(local_ae,remote_scp, query_retrieve_level,payload)
+        message = result['message']
+        if message == '':
+            items_found = result['response']          
+            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK})
+        else:
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+
+    except Exception as e:
+        __logger.exception('An error occurred: %s', e)
+        error = str(list(servserializer.errors.values())[0][0])
+        return JsonResponse( {'message': error, 'status': status.HTTP_400_BAD_REQUEST})
