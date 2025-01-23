@@ -110,6 +110,8 @@ def __get_association(local_scu, remote_scp, handlers =[]):
 
 
 def execute_echo (local_scu, remote_scp):
+
+    __logger.debug('Echo request to : %s %s:%s',remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
     assoc= __get_association(local_scu, remote_scp)
     status_response = False
     message_response = ""
@@ -203,7 +205,7 @@ def execute_c_get(local_scu, remote_scp, query_retrieve_level,payload):
         for  (status, identifier)  in responses:
 
             if status:
-                print('C-FIND query status: 0x{0:04X}'.format( status.Status))
+                print('C-GET status: 0x{0:04X}'.format( status.Status))
 
                 if status.Status == 0xFF00:#pending
                     nr_sub_completed = status.NumberOfCompletedSuboperations
