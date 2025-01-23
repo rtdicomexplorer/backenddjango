@@ -230,3 +230,25 @@ def execute_c_get(local_scu, remote_scp, query_retrieve_level,payload):
         __logger.info('Association rejected, aborted or never connected')
         return {'message': 'Association rejected, aborted or never connected'}
        
+
+
+def get_binaryimage(request):
+    payload = request.data['payload']
+    studyuid = payload['studyuid']
+    serieyuid = payload['serieuid']
+    instanceuid = payload['instanceuid']
+
+    store_root = settings.DCM_PATH
+    file_name = os.path.join(store_root,studyuid,serieyuid,instanceuid)
+    if os.path.isfile(file_name):
+        return file_name
+
+
+def get_dcm_filelist(request):
+    payload = request.data['payload']
+    studyuid = payload['studyuid']
+    serieyuid = payload['serieuid']
+    store_root =  os.path.join(settings.DCM_PATH,studyuid,serieyuid)
+    files = os.listdir(store_root)
+    files = [f for f in files if os.path.isfile(store_root+'/'+f)] #Filtering only the files.
+    return files

@@ -81,7 +81,7 @@ class DcmCommunication:
         ds.save_as(file_name, write_like_original=False)
         logger.debug(f'file saved: {file_name}')
         # Return a 'Success' status
-        self.get_file_list.append({ds.SOPInstanceUID:file_name})
+        self.get_file_list.append({'studyuid': ds.StudyInstanceUID,'serieuid':ds.SeriesInstanceUID, 'instanceuid':ds.SOPInstanceUID})
         return 0x0000
 
     def __get_association(self,local_scu, remote_scp, handlers =[]):
@@ -246,7 +246,7 @@ class DcmCommunication:
                 elapsed_time = time.time()-st
                 logger.debug(f"GET Execution time: {elapsed_time} sec  for ")
                 logger.debug("Suboperations completed %s, warning %s, failed %s:", nr_sub_completed, nr_sub_warning, nr_sub_failed)
-                return {'message': '', 'response' : self.get_file_list}
+                return {'message': '', 'response' : nr_sub_completed}
 
             else:
                 logger.info('Association rejected, aborted or never connected')
