@@ -37,6 +37,8 @@ from pynetdicom.presentation import StoragePresentationContexts,  QueryRetrieveP
 import pydicom as dcm
 
 import logging
+
+
 __logger = logging.getLogger('backenddjango')
 #debug_logger()
 #dicom support just 128 pres context, we need to remove some these
@@ -62,12 +64,11 @@ _exclusiions =[
  
     ]
 
-
-
+file_list={}
+print('file_list')
 
 def __handle_store(event):
     """Handle a C-STORE request event to store in existing folder."""
-    
     store_root = settings.DCM_PATH
     ds = event.dataset
     ds.file_meta = event.file_meta
@@ -84,14 +85,15 @@ def __handle_store(event):
     ds.save_as(file_name, write_like_original=False)
     __logger.debug(f'file saved: {file_name}')
     # Return a 'Success' status
+    file_list [ds.SOPInstanceUID]=file_name
     return 0x0000
 
 
-def get_association(local_scu, remote_scp, handlers =[]):
+def __get_association(local_scu, remote_scp, handlers =[]):
     ae = AE(ae_title=local_scu)
     ae.requested_contexts= QueryRetrievePresentationContexts[:]
     ae.add_requested_context("1.2.840.10008.1.1")
-
+ 
     roles =[]
     if len(handlers)>0:
         for c in StoragePresentationContexts :
@@ -108,7 +110,7 @@ def get_association(local_scu, remote_scp, handlers =[]):
 
 
 def execute_echo (local_scu, remote_scp):
-    assoc= get_association(local_scu, remote_scp)
+    assoc= __get_association(local_scu, remote_scp)
     status_response = False
     message_response = ""
     if assoc.is_established:
@@ -143,7 +145,7 @@ def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
         req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
     req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-    assoc= get_association(local_scu, remote_scp)
+    assoc= __get_association(local_scu, remote_scp)
     if assoc.is_established:
     # Send the C-FIND request
         responses = assoc.send_c_find(req_dataset, StudyRootQueryRetrieveInformationModelFind)
@@ -179,7 +181,6 @@ def execute_c_find(local_scu, remote_scp, query_retrieve_level,payload):
 
  
 def execute_c_get(local_scu, remote_scp, query_retrieve_level,payload):
-  
     handlers =[(evt.EVT_C_STORE, __handle_store)]
     st= time.time()
     req_dataset =dcm.Dataset()
@@ -188,21 +189,40 @@ def execute_c_get(local_scu, remote_scp, query_retrieve_level,payload):
         req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
     req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-    assoc= get_association(local_scu, remote_scp,handlers=handlers)
-    count = 0
+    assoc= __get_association(local_scu, remote_scp,handlers=handlers)
+    file_list.clear() 
+
+    nr_sub_completed = 0
+    nr_sub_remaining = 0 
+    nr_sub_warning = 0
+    nr_sub_failed = 0
+
     if assoc.is_established:
         responses = assoc.send_c_get(req_dataset, PatientRootQueryRetrieveInformationModelGet)
-        for (status, identifier) in responses:
-            count+=1
+    
+        for  (status, identifier)  in responses:
+
             if status:
-                __logger.debug('C-FIND query status: 0x{0:04X}'.format( status.Status))
+                print('C-FIND query status: 0x{0:04X}'.format( status.Status))
+
+                if status.Status == 0xFF00:#pending
+                    nr_sub_completed = status.NumberOfCompletedSuboperations
+                    nr_sub_remaining = status.NumberOfRemainingSuboperations
+                    nr_sub_warning = status.NumberOfWarningSuboperations
+                    nr_sub_failed = status.NumberOfFailedSuboperations
+                    __logger.debug('Nr. of remaining sub operation %s: ',nr_sub_remaining)
+
+                    # yield {'message': '', 'response' : nr_sub_remaining}
             else:
                 __logger.debug('Connection timed out, was aborted or received invalid response')
         # Release the association
         assoc.release()
+
+        print(file_list)
         elapsed_time = time.time()-st
-        __logger.debug(f"GET Execution time: {elapsed_time} sec  for {count}")
-        return {'message': '', 'response' : count}
+        __logger.debug(f"GET Execution time: {elapsed_time} sec  for ")
+        __logger.debug("Suboperations completed %s, warning %s, failed %s:", nr_sub_completed, nr_sub_warning, nr_sub_failed)
+        return {'message': '', 'response' : nr_sub_completed}
 
     else:
         __logger.info('Association rejected, aborted or never connected')
