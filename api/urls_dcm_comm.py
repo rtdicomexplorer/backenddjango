@@ -1,4 +1,4 @@
-from .views_dcm_comm import echo_command, find_command,get_command,get_binary, get_dicom_file_list
+from .views_dcm_comm import echo_command, find_command,get_command,get_binary, get_dicom_file_list, get_base64
 from django.urls import path
 
 urlpatterns=[
@@ -7,4 +7,5 @@ urlpatterns=[
     path('get/', get_command),
     path('get/filelist/', get_dicom_file_list),
     path('get/binary/', get_binary),
+    path('get/base64/', get_base64),
 ]

@@ -3,9 +3,8 @@ from django.http.response import JsonResponse
 from rest_framework import status
 from django.http import  HttpResponse
 from api.dcm_comm_class import DcmCommunication
-from pynetdicom import debug_logger
 from django.conf import settings
-from .dicom_comm_commands import get_binaryimage, get_dcm_filelist
+from .dicom_comm_commands import get_binaryimage, get_dcm_filelist, get_base64image
 import logging
 __logger = logging.getLogger('backenddjango')
 
@@ -63,20 +62,21 @@ def get_command(request):
 
 
 @api_view(['POST'])
-def get_binary(request):
+def get_binary(request):    
+    try:            
+        return HttpResponse(get_binaryimage(request), content_type='application/octet-stream')
+    except Exception as e:
+        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+
+@api_view(['POST'])
+def get_base64(request):
      
     try:      
-        
-        file_to_send = get_binaryimage(request)
-        if file_to_send != '':
-            return HttpResponse(open(file_to_send, 'rb'), content_type='application/octet-stream')
-        else:
-            return HttpResponse({'message': 'file not found' , 'status': status.HTTP_400_BAD_REQUEST}, content_type='application/json')
+        return JsonResponse( {'data': get_base64image(request),'status': status.HTTP_200_OK })
 
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
         return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
-    
+
 
 @api_view(['POST'])
 def get_dicom_file_list(request):
@@ -84,5 +84,4 @@ def get_dicom_file_list(request):
         file_to_send = get_dcm_filelist(request)
         return JsonResponse( {'data': file_to_send ,'status': status.HTTP_200_OK })
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
         return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})

@@ -76,12 +76,13 @@ class DcmCommunication:
         if not os.path.exists(store_path):
             os.makedirs(store_path)
 
-        file_name = os.path.join(store_path,ds.SOPInstanceUID + ".dcm")
+        file_name = ds.SOPInstanceUID + ".dcm"
+        file_path_name = os.path.join(store_path,file_name)
         # Save the dataset using the SOP Instance UID as the filename
-        ds.save_as(file_name, write_like_original=False)
-        logger.debug(f'file saved: {file_name}')
+        ds.save_as(file_path_name, write_like_original=False)
+        logger.debug(f'file saved: {file_path_name}')
         # Return a 'Success' status
-        self.get_file_list.append({'studyuid': ds.StudyInstanceUID,'serieuid':ds.SeriesInstanceUID, 'instanceuid':ds.SOPInstanceUID})
+        self.get_file_list.append(file_name)
         return 0x0000
 
     def __get_association(self,local_scu, remote_scp, handlers =[]):
@@ -246,7 +247,7 @@ class DcmCommunication:
                 elapsed_time = time.time()-st
                 logger.debug(f"GET Execution time: {elapsed_time} sec  for ")
                 logger.debug("Suboperations completed %s, warning %s, failed %s:", nr_sub_completed, nr_sub_warning, nr_sub_failed)
-                return {'message': '', 'response' : nr_sub_completed}
+                return {'message': '', 'response' : self.get_file_list}
 
             else:
                 logger.info('Association rejected, aborted or never connected')
