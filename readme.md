@@ -42,6 +42,7 @@ PACS_NAME='dicomserver'
 PACS_HOST='www.dicomserver.co.uk'
 PACS_PORT='104'
 LOCAL_AETITLE='localscu'
+DCM_PATH='dcm_data'
 
 
 
