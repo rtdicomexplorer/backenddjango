@@ -16,7 +16,7 @@ class DicomServerSerializers(serializers.ModelSerializer):
 class FhirServerSerializers(serializers.ModelSerializer):
     class Meta(object):
         model = FhirServer
-        fields = ['id','name', 'description', 'host', 'port']
+        fields = ['id','name', 'description', 'host', 'port','added_on']
 
 
 
