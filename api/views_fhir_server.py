@@ -60,7 +60,7 @@ def update(request, pk):
         fhir_server.description = request.data['description']
         fhir_server.host = request.data['host']
         fhir_server.save()
-        __logger.debug("FHIR server "+fhir_server.aetitle+" updated!")
+        __logger.debug("FHIR server "+fhir_server.name+" updated!")
         return JsonResponse({'message': fhir_server.id, 'status': status.HTTP_201_CREATED})
     except Exception as e:
         __logger.exception('An error occurred: %s', e)       
@@ -77,7 +77,7 @@ def addserver(request):
             servserializer.save()
             fhir_server = FhirServer.objects.get(host=request.data['host'])
             fhir_server.save()
-            __logger.debug("FHIR server "+fhir_server.aetitle+" added!")
+            __logger.debug("FHIR server "+fhir_server.name+" added!")
             return JsonResponse({'data': fhir_server.id, 'status': status.HTTP_201_CREATED})
         except Exception as e:
             __logger.exception('An error occurred: %s', e)
