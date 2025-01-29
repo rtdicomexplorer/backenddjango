@@ -1,8 +1,11 @@
 asgiref==3.8.1
+certifi==2024.12.14
+charset-normalizer==3.4.1
 Django==5.1.4
 django-cors-headers==4.6.0
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
+idna==3.10
 numpy==2.2.2
 pillow==11.0.0
 psycopg2-binary==2.9.10
@@ -10,6 +13,8 @@ pydicom==2.4.4
 PyJWT==2.10.1
 pynetdicom==2.1.1
 python-dotenv==1.0.1
+requests==2.32.3
 sqlparse==0.5.3
 tzdata==2024.2
+urllib3==2.2.1
 whitenoise==6.8.2
