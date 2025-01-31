@@ -5,6 +5,5 @@ venv
 staticfiles
 migrations
 media/avatars
-html
 logs
 dcm_data

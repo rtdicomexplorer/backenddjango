@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "Poppins", sans-serif;
+  src: url("../fonts/Poppins-Regular.ttf");
+}
+
+/* body {
+  font-family: "Poppins", sans-serif;
+  font-size: smaller;
+}
+
+.height {
+  min-height: 100vh;
+}
+.title-underline {
+  width: 200px;
+  height: 10px;
+  margin: 0 auth;
+}
+
+.height-75 {
+  min-height: 75vh;
+}
+
+.custom {
+  width: 78px !important;
+} */
