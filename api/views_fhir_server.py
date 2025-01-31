@@ -17,7 +17,6 @@ def servers(request):
     __logger.info("GET server list request incoming")
 
     try:
-        
         serverList = FhirServer.objects.values()
         serializer = FhirServerSerializers(serverList, many = True)
         __logger.debug("FHIR server list found!")
@@ -56,7 +55,6 @@ def update(request, pk):
         if not fhir_server:
             return JsonResponse({"message": "missing server", "status":status.HTTP_404_NOT_FOUND})  
         fhir_server.name = request.data['name']
-        fhir_server.port = request.data['port']
         fhir_server.description = request.data['description']
         fhir_server.host = request.data['host']
         fhir_server.save()

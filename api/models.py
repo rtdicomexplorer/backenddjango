@@ -68,18 +68,17 @@ class FhirServer(models.Model):
     name = models.CharField(max_length=255,blank=False, null=False)
     description = models.TextField(blank=True, null=True)
     host = models.CharField(max_length=255, blank=False, null=False)
-    port = models.PositiveIntegerField(null=True)
     image = models.ImageField(upload_to='server/', blank=True, null=True)
     added_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
             verbose_name_plural = "FhirServers"
-            unique_together = ('name', 'host',)
+            unique_together = ('name',)
 
 
     @property
     def get_url(self):
-        return self.host+':'+self.port
+        return self.host
     
     def __str__(self):
         return self.name
@@ -95,7 +94,6 @@ class DicomServer(models.Model):
     class Meta:
             verbose_name_plural = "DicomServers"
             unique_together = ('aetitle',)
-
 
     @property
     def get_url(self):
