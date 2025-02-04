@@ -46,4 +46,7 @@ DCM_PATH='dcm_data'
 
 
 
-
+### TO DO
+ Client Credentials grant  
+ demo : https://django-oauth-toolkit.readthedocs.io/en/latest/tutorial/tutorial_01.html
+ the front end part should be implemented as well...
