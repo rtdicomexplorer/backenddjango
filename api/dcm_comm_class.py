@@ -1,6 +1,8 @@
 import logging
 import os
 from pynetdicom import AE, evt, build_role,debug_logger
+from django.core.files.storage import FileSystemStorage  
+from pathlib import Path
 import time
 from django.conf import settings
 from pynetdicom.sop_class import (
@@ -85,24 +87,27 @@ class DcmCommunication:
         self.get_file_list.append(file_name)
         return 0x0000
 
-    def __get_association(self,local_scu, remote_scp, handlers =[]):
+    def __get_association(self,local_scu, remote_scp,store_scu, handlers =[]):
         ae = AE(ae_title=local_scu)
-        ae.requested_contexts= QueryRetrievePresentationContexts[:]
-        ae.add_requested_context("1.2.840.10008.1.1")
-    
         roles =[]
-        if len(handlers)>0:
-            for c in StoragePresentationContexts :
-                if c.abstract_syntax not in _exclusiions:
-                    ae.add_requested_context(c.abstract_syntax)
-                    roles.append(build_role(c.abstract_syntax, scp_role=True))
+        if store_scu :
+            ae.requested_contexts = StoragePresentationContexts
+        else:
+            ae.requested_contexts= QueryRetrievePresentationContexts[:]
+            ae.add_requested_context("1.2.840.10008.1.1")
+         
+            if len(handlers)>0:
+                for c in StoragePresentationContexts :
+                    if c.abstract_syntax not in _exclusiions:
+                        ae.add_requested_context(c.abstract_syntax)
+                        roles.append(build_role(c.abstract_syntax, scp_role=True))
         return ae.associate(
-                            addr= remote_scp['host'],
-                            port= remote_scp['port'], 
-                            ae_title=remote_scp['aetitle'],
-                            ext_neg=roles, 
-                            evt_handlers=handlers
-                            )
+                        addr= remote_scp['host'],
+                        port= remote_scp['port'], 
+                        ae_title=remote_scp['aetitle'],
+                        ext_neg=roles, 
+                        evt_handlers=handlers
+                        )
     
     def execute_echo (self,request):
 
@@ -112,7 +117,7 @@ class DcmCommunication:
             local_ae = settings.LOCAL_AET
 
             logger.debug('Echo request to : %s %s:%s',remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
-            assoc= self.__get_association(local_ae, remote_scp)
+            assoc= self.__get_association(local_ae, remote_scp, False)
             status_response = False
             message_response = ""
             if assoc.is_established:
@@ -161,7 +166,7 @@ class DcmCommunication:
                 req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
             req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-            assoc= self.__get_association(local_ae, remote_scp)
+            assoc= self.__get_association(local_ae, remote_scp, False)
             if assoc.is_established:
             # Send the C-FIND request
                 responses = assoc.send_c_find(req_dataset, StudyRootQueryRetrieveInformationModelFind)
@@ -216,7 +221,7 @@ class DcmCommunication:
                 req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
             req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-            assoc= self.__get_association(local_ae, remote_scp,handlers=handlers)
+            assoc= self.__get_association(local_ae, remote_scp,False, handlers=handlers)
             self.get_file_list.clear() 
 
             nr_sub_completed = 0
@@ -256,3 +261,79 @@ class DcmCommunication:
             logger.exception('An error occurred: %s', e)
             error = str(list(servserializer.errors.values())[0][0])
             raise  Exception(error)
+
+
+
+    def __handle_uploaded_file_to_store(self,file,file_name, remote_scp):
+  
+        response = { 'status':True, 'message':'', 'filename':file_name}
+        try:
+            store_root = settings.DCM_PATH
+            store_path =os.path.join(store_root,'temp')
+            if not os.path.exists(store_path):
+                os.makedirs(store_path)
+                
+            FileSystemStorage(location=store_path).save(file_name, file)
+            file_path = os.path.join(store_path,file_name)
+    
+            local_ae = settings.LOCAL_AET
+            assoc= self.__get_association(local_ae, remote_scp, True)
+            ds = dcm.dcmread(file_path)
+            if assoc.is_established:
+                # Use the C-STORE service to send the dataset
+                # returns the response status as a pydicom Dataset
+                status = assoc.send_c_store(ds)
+
+                # Check the status of the storage request
+                if status:
+                    # If the storage request succeeded this will be 0x0000
+                    logger.debug ('C-STORE request status: 0x{0:04x}'.format(status.Status))
+                    
+                else:
+                    logger.debug('Connection timed out, was aborted or received invalid response')
+                    response['status']= False
+                    response['message']= 'Connection timed out, was aborted or received invalid response'
+
+                # Release the association
+                assoc.release()
+            else:
+                logger.debug('Association rejected, aborted or never connected')
+                response['status']= False
+                response['message']= 'Association rejected, aborted or never connected'
+            return response
+        except Exception as e:        
+            logger.exception('An error occurred: %s', e)       
+            response['status']= False
+            response['message']= 'An error occurred: %s', e
+            
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return response
+
+
+    def execute_c_store(self,request):
+        try:
+           
+            response = []
+            key ='file'
+            if key in request.FILES:
+                files = request.FILES.getlist(key)
+                for file in files:
+                    try:
+                        remote_scp_data = file.name.split(':')
+                        remote_scp = {}
+                        remote_scp['aetitle'] = remote_scp_data[0]
+                        remote_scp['port'] = int(remote_scp_data[1])
+                        remote_scp['host']= remote_scp_data[2]
+                        file_name = remote_scp_data[3]
+                        result = self.__handle_uploaded_file_to_store(file,file_name,remote_scp)
+                        response.append(result)
+                    except Exception as e:
+                        logger.exception('An error occurred: %s', e)
+
+            return {'message': '', 'response' : response}
+
+        except Exception as e:
+            logger.exception('An error occurred: %s', e)
+            raise  Exception('An error occurred: %s', e)
