@@ -7,13 +7,11 @@ services:
       dockerfile: dockerfile
       args:  
         - REQUIREMENTS_FILE=requirements.txt
-    command: /app/entrypoint.sh      
-    image: backend-app-image:06-02-2025-fhir
+    command: ./entrypoint.sh      
+    image: backend-app-image:10-02-2025-fhir
     container_name: backend-app-container
     ports:
       - "8001:8000"
-    volumes:
-    - .:/app
     env_file:
       - .env
     depends_on:
@@ -48,7 +46,10 @@ services:
   nginx-app:
     image: nginx
     container_name: nginx-app-baseprj
-
+    depends_on:
+      - app
+    restart:
+      - always
     ports:
       - 8085:8085
     volumes:
