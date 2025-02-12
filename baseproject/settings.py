@@ -100,8 +100,8 @@ else:
 __logger = logging.getLogger('backenddjango')
 __logger.info(ENVIROMENT)
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS','127.0.0.1').split(',')
-CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS','https://127.0.0.1').split(',')
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+CSRF_TRUSTED_ORIGINS = ['https://*']
 
 # Application definition
 

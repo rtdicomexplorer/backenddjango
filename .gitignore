@@ -7,3 +7,5 @@ migrations
 media/avatars
 logs
 dcm_data
+static
+media/
