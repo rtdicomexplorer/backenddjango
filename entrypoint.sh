@@ -3,4 +3,4 @@ python manage.py collectstatic --noinput
 python manage.py makemigrations
 python manage.py migrate
 python manage.py seed_db
-python manage.py runserver 0.0.0.0:8000 
+python -m gunicorn --bind 0.0.0.0:8000 --workers 3 baseproject.wsgi:application

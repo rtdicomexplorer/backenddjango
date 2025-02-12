@@ -2,7 +2,7 @@
 
 ### steps to use the backend
 - 1- python -m venv venv
-- 2- venv\Scripts\activate
+- 2- venv\Scripts\activate  or on linux:  source venv/bin/activate
 - 2.1 - python.exe -m pip install --upgrade pip
 - 2.2 - pip install -r requirements.txt
 - 2.3 - python manage.py makemigrations

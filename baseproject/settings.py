@@ -100,8 +100,8 @@ else:
 __logger = logging.getLogger('backenddjango')
 __logger.info(ENVIROMENT)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
-CSRF_TRUSTED_ORIGINS = [ 'https://*' ]
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS','127.0.0.1').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS','https://127.0.0.1').split(',')
 
 # Application definition
 
@@ -177,7 +177,7 @@ else:
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',           
             'NAME' : os.getenv('DBNAME'),
             'USER' : os.getenv('DBUSER'),
             'PASSWORD':os.getenv('DBPASSWORD'),
