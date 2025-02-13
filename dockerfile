@@ -14,6 +14,7 @@ RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir
 RUN mkdir logs
 RUN mkdir logs/backend
 RUN mkdir logs/nginx
+RUN mkdir static
 RUN mkdir media
 RUN mkdir media/avatars
 RUN mkdir media/default
