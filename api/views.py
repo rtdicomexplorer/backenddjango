@@ -12,7 +12,8 @@ import base64
 from django.conf import settings
 import os
 from django.core.files.storage import FileSystemStorage  
-
+import logging
+__logger = logging.getLogger('backenddjango')
 #SIGNUP
 @api_view(['POST'])
 def signup(request):
@@ -114,10 +115,14 @@ def user(request, pk):
             img_url = user.image.url
     except:
         img_url = 'media/default/user.png'
-
-    img_path = settings.BASE_DIR / img_url
-    img_file = open(img_path, "rb")
-    img64 =  base64.b64encode(img_file.read()).decode('utf-8')
+    img64 = ''
+    try:
+        img_path = settings.BASE_DIR / img_url
+        img_file = open(img_path, "rb")
+        img64 =  base64.b64encode(img_file.read()).decode('utf-8')
+    except Exception as e:
+        __logger.exception(e)       
+        img64 = ''
     serializer = CustomUserSerializers(user)
     return JsonResponse({"avatar": img64, "data": serializer.data, "status":status.HTTP_200_OK})
 
