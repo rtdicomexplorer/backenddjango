@@ -222,12 +222,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-AVATARS_URL= 'avatars/' 
+
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media' 
+AVATARS_URL= 'avatars/' 
 MEDIA_AVATAR = MEDIA_ROOT / AVATARS_URL
 
 

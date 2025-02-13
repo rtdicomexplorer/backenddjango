@@ -46,11 +46,13 @@ def handle_uploaded_file(request, user):
     key ='file'
     if key in request.FILES:
         files = request.FILES.getlist(key)
+        #basedir/media/avatars
         saveFolder = os.path.join(settings.MEDIA_AVATAR)
         for file in files:
             try:
                 FileSystemStorage(location=saveFolder).save(file.name, file)
-                user.image = settings.AVATARS_URL+file.name #  (os.path.join(saveFolder, file.name),File().read())
+                #'file.png'
+                user.image = file.name #  (os.path.join(saveFolder, file.name),File().read())
                 user.save()
                 return JsonResponse({'message': 'avatar uploaded'}, status=status.HTTP_201_CREATED) 
             except Exception as e:
@@ -107,17 +109,17 @@ def user(request, pk):
     if not user:
          return JsonResponse({"message": "missing user", "status":status.HTTP_404_NOT_FOUND})  
     
-    img_url = 'media/default/user.png'
+     #'avatars/file.png'
+    img_path = settings.MEDIA_ROOT / 'user.png'
     try:
         if user.image.url.startswith('/') or user.image.url.startswith("\\"):
-            img_url = user.image.url[1:]
+            img_path = settings.MEDIA_AVATAR / user.image.url[1:]
         else:
-            img_url = user.image.url
+            img_path= settings.MEDIA_AVATAR / user.image.url
     except:
-        img_url = 'media/default/user.png'
+        img_path = settings.MEDIA_ROOT / 'user.png'
     img64 = ''
     try:
-        img_path = settings.BASE_DIR / img_url
         img_file = open(img_path, "rb")
         img64 =  base64.b64encode(img_file.read()).decode('utf-8')
     except Exception as e:
