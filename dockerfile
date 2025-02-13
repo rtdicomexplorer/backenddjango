@@ -15,9 +15,11 @@ RUN mkdir logs
 RUN mkdir logs/backend
 RUN mkdir logs/nginx
 RUN mkdir static
-RUN mkdir media/avatars
+RUN mkdir /media/avatars
 
 COPY . /app
+
+COPY ./media/user.png /app/media/user.png
 
 COPY ./entrypoint.sh ./entrypoint.sh
 
