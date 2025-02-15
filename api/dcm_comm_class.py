@@ -337,3 +337,52 @@ class DcmCommunication:
         except Exception as e:
             logger.exception('An error occurred: %s', e)
             raise  Exception('An error occurred: %s', e)
+        
+
+    def execute_c_move(self,request):
+
+        try:    
+        
+            dcm_server = request.data['remotescp']
+            query_retrieve_level=request.data['queryretrievelevel']
+            payload = request.data['payload']
+            destination_aetitle = request.data['destinationaetitle']
+            servserializer = DicomServerSerializers(data=dcm_server)
+            remote_scp = servserializer.initial_data      
+            local_ae = settings.LOCAL_AET
+            logger.debug('Find request %s to : %s %s:%s',query_retrieve_level, remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
+            st= time.time()
+            req_dataset =dcm.Dataset()
+            for key in payload.keys():
+                dcm_tag = payload[key]
+                req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
+            req_dataset.QueryRetrieveLevel = query_retrieve_level
+
+            assoc= self.__get_association(local_ae, remote_scp, False)
+            if assoc.is_established:
+            # Send the C-MOVE request
+
+                responses = assoc.send_c_move(req_dataset, destination_aetitle, StudyRootQueryRetrieveInformationModelMove)
+                count = 0
+                for (status, identifier) in responses:
+                  
+                    if status:
+                        count +=1
+                        logger.debug('C-MOVE query status: 0x{0:04X}'.format( status.Status)) 
+                    else:
+                        logger.debug('Connection timed out, was aborted or received invalid response')
+                      
+                # Release the association
+                assoc.release()
+
+                elapsed_time = time.time()-st
+
+                logger.debug('Elements found %s in %s sec', count, elapsed_time)
+                return {'message': '', 'response' : count}
+            else:
+                logger.info('Association rejected, aborted or never connected')
+                return {'message': 'Association rejected, aborted or never connected'}
+        except Exception as e:
+            logger.exception('An error occurred: %s', e)
+            error = str(list(servserializer.errors.values())[0][0])
+            raise  Exception(error)

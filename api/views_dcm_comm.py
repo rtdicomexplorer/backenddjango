@@ -61,7 +61,28 @@ def get_command(request):
         return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
 
 
-#C-TORE command
+#C-MOVE command
+@api_view(['POST'])
+def move_command(request):
+    try:      
+        dcm_com = DcmCommunication()
+        result = dcm_com.execute_c_move(request)
+        message = result['message']
+        if message == '':
+            items_found = result['response']          
+            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK})
+        else:
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+
+    except Exception as e:
+        __logger.exception('An error occurred: %s', e)
+        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+
+
+
+
+
+#C-STORE command
 @api_view(['POST'])
 def store_command(request):
     try:      
