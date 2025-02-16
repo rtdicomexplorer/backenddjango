@@ -369,6 +369,7 @@ class DcmCommunication:
                     if status:
                         count +=1
                         logger.debug('C-MOVE query status: 0x{0:04X}'.format( status.Status)) 
+                        print('C-MOVE query status: 0x{0:04X}'.format( status.Status))
                     else:
                         logger.debug('Connection timed out, was aborted or received invalid response')
                       
