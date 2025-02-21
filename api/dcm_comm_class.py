@@ -342,7 +342,7 @@ class DcmCommunication:
     def execute_c_move(self,request):
 
         try:    
-        
+            html_response ={}
             dcm_server = request.data['remotescp']
             query_retrieve_level=request.data['queryretrievelevel']
             payload = request.data['payload']
@@ -363,23 +363,56 @@ class DcmCommunication:
             # Send the C-MOVE request
 
                 responses = assoc.send_c_move(req_dataset, destination_aetitle, StudyRootQueryRetrieveInformationModelMove)
-                count = 0
+                # count = 0
+                nr_completed_sub_operation = 0
+                nr_failed_sub_operation = 0
+                nr_warning_sub_operation = 0
+                move_completed = True
                 for (status, identifier) in responses:
                   
-                    if status:
-                        count +=1
+                    if status and status.Status in [0xFF00, 0xFF01]:
+                        # count +=1
+                        # `identifier` is a pydicom Dataset containing a query
+                        
+                        # print('C-MOVE query status: 0x{0:04X}'.format( status.Status))
+                        nr_completed_sub_operation = status.NumberOfCompletedSuboperations
+                        nr_warning_sub_operation = status.NumberOfWarningSuboperations
+                        nr_failed_sub_operation = status.NumberOfFailedSuboperations                 
+                        msg = f"Suboperations {status.NumberOfRemainingSuboperations}/{status.NumberOfCompletedSuboperations}"
+                        print(msg)
                         logger.debug('C-MOVE query status: 0x{0:04X}'.format( status.Status)) 
-                        print('C-MOVE query status: 0x{0:04X}'.format( status.Status))
+
                     else:
                         logger.debug('Connection timed out, was aborted or received invalid response')
-                      
+                        move_completed =  status.Status == 0x0000
+                    
+                    # html_response.append('C-MOVE query status: 0x{0:04X}'.format( status.Status))
                 # Release the association
                 assoc.release()
 
-                elapsed_time = time.time()-st
+                if move_completed:
+                    msg = f"Nr. of completed sub operations {status.NumberOfCompletedSuboperations}"
+                    logger.debug(f'C-MOVE {msg}') 
 
-                logger.debug('Elements found %s in %s sec', count, elapsed_time)
-                return {'message': '', 'response' : count}
+                    msg = f"Nr. of warning sub operations {status.NumberOfWarningSuboperations}"
+                    logger.debug(f'C-MOVE {msg}') 
+                    
+                    msg = f"Nr. of failed sub operations {status.NumberOfFailedSuboperations}"
+                    logger.debug(f'C-MOVE {msg}') 
+
+                    html_response["Nr. completed sub operation"] = nr_completed_sub_operation
+                    html_response["Nr. failed sub operation"] = nr_failed_sub_operation
+                    html_response["Nr. warning sub operation"] = nr_warning_sub_operation
+                
+
+                    elapsed_time = time.time()-st
+
+                    logger.debug('C-MOVE Completed in %s sec', elapsed_time)
+                
+                    return {'message': '', 'response' : html_response}
+                else:
+                    return {'message': 'Connection timed out, was aborted or received invalid response'}
+
             else:
                 logger.info('Association rejected, aborted or never connected')
                 return {'message': 'Association rejected, aborted or never connected'}
