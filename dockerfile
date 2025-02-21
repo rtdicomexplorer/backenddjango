@@ -1,4 +1,4 @@
-FROM python:3.11.9
+FROM python:alpine
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -10,7 +10,7 @@ ARG REQUIREMENTS_FILE
 COPY ./$REQUIREMENTS_FILE ./
 
 RUN pip install --upgrade pip
-RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir
+RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir --no-compile
 RUN mkdir logs
 RUN mkdir logs/backend
 RUN mkdir logs/nginx
