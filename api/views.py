@@ -4,10 +4,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.shortcuts import get_object_or_404
 from django.http.response import JsonResponse
 from rest_framework import status
-from .serializers import CustomUserSerializers
+from .serializers import CustomUserSerializers, LocalConfigSerializers
 from rest_framework.authtoken.models import Token
 
-from .models import CustomUser
+from .models import CustomUser, LocalConfig
 import base64
 from django.conf import settings
 import os
@@ -92,7 +92,6 @@ def login(request):
 
 #user list
 @api_view(['GET'])
-#@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated,IsAdminUser])
 def users(request):
     print('GET user list request incoming')
@@ -149,4 +148,27 @@ def delete(request,pk):
 def test_auth_token(request):  
     return JsonResponse({'message': 'Test passed for', 'user': request.user.email})
 
-# Create your views here.
+
+#configs list
+@api_view(['GET'])
+@permission_classes([IsAuthenticated,IsAdminUser])
+def config(request):
+    print('GET config request incoming')
+    configs = LocalConfig.objects.values()
+    serializer = LocalConfigSerializers(configs, many = True)
+    return JsonResponse({'data':serializer.instance[0],'status':status.HTTP_200_OK})
+
+
+
+#UPDATE CONFIG
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def config_update(request, pk):
+    print('Update config request incoming')
+    setting = get_object_or_404(LocalConfig, pk=pk)
+    if not setting:
+         return JsonResponse({"message": "missing setting", "status":status.HTTP_404_NOT_FOUND})  
+    setting.aetitle = request.data['aetitle']
+    setting.save()
+    return JsonResponse({'message': setting.id, 'status': status.HTTP_201_CREATED})
+

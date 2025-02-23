@@ -101,3 +101,20 @@ class DicomServer(models.Model):
     
     def __str__(self):
         return self.aetitle
+
+class LocalConfig(models.Model):
+    aetitle = models.CharField(max_length=16, blank=False, null=False,unique=True)
+    host = models.CharField(max_length=255, blank=False, null=False)
+    added_on = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('aetitle',)
+    
+    @property
+    def get_ip(self):
+        return self.host
+    @property
+    def __str__(self):
+        return self.aetitle
+    
+    

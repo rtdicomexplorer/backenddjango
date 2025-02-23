@@ -1,5 +1,6 @@
+import socket
 from django.core.management.base import BaseCommand
-from api.models import CustomUser,FhirServer, DicomServer
+from api.models import CustomUser,FhirServer, DicomServer, LocalConfig
 import os
 from dotenv import load_dotenv
 class Command(BaseCommand):
@@ -30,3 +31,11 @@ class Command(BaseCommand):
         dicomserver = DicomServer.objects.get_or_create(aetitle = aetitle, host = scphost, description = scpdescription, port = scpport)
         if dicomserver is not None:
             print("dicom server created!")
+        
+        #config
+        local_aetitle = os.getenv('LOCAL_AETITLE', default='localscu')
+        hostname = socket.gethostname()
+        ipaddr = socket.gethostbyname(hostname)
+        config = LocalConfig.objects.get_or_create(aetitle = local_aetitle, host= ipaddr)
+        if config is not None:
+            print("setting created")
