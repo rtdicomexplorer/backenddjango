@@ -31,6 +31,8 @@ from pynetdicom.sop_class import (
      OphthlamicOpticalCoherenceTomographyBscanVolumeAnalysisStorage 
 )
 
+from api.models import LocalConfig
+
 _exclusiions =[
     RoutineScalpElectroencephalogramWaveformStorage,
     MultichannelRespiratoryWaveformStorage,
@@ -54,15 +56,22 @@ _exclusiions =[
     ]
 
 from pynetdicom.presentation import StoragePresentationContexts,  QueryRetrievePresentationContexts
-from .serializers import DicomServerSerializers
+from .serializers import DicomServerSerializers, LocalConfigSerializers
 import pydicom as dcm
 logger = logging.getLogger('backenddjango')
+
+def get_local_aetitle():
+        configs = LocalConfig.objects.values()
+        serializer = LocalConfigSerializers(configs, many = True)
+        return serializer.instance[0]['aetitle']
 
 class DcmCommunication:
     '''Defines an object that execites the dciom command'''
 
     def __init__(self):
         self.get_file_list = []
+
+        self.local_aetitle = get_local_aetitle()
     
     def __handle_store(self,event):
 
@@ -114,10 +123,9 @@ class DcmCommunication:
         try:
             servserializer = DicomServerSerializers(data=request.data)
             remote_scp = servserializer.initial_data
-            local_ae = settings.LOCAL_AET
-
+          
             logger.debug('Echo request to : %s %s:%s',remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
-            assoc= self.__get_association(local_ae, remote_scp, False)
+            assoc= self.__get_association(self.local_aetitle, remote_scp, False)
             status_response = False
             message_response = ""
             if assoc.is_established:
@@ -157,7 +165,6 @@ class DcmCommunication:
             payload = request.data['payload']
             servserializer = DicomServerSerializers(data=dcm_server)
             remote_scp = servserializer.initial_data      
-            local_ae = settings.LOCAL_AET
             logger.debug('Find request %s to : %s %s:%s',query_retrieve_level, remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
             st= time.time()
             req_dataset =dcm.Dataset()
@@ -166,7 +173,7 @@ class DcmCommunication:
                 req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
             req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-            assoc= self.__get_association(local_ae, remote_scp, False)
+            assoc= self.__get_association(self.local_aetitle, remote_scp, False)
             if assoc.is_established:
             # Send the C-FIND request
                 responses = assoc.send_c_find(req_dataset, StudyRootQueryRetrieveInformationModelFind)
@@ -210,9 +217,6 @@ class DcmCommunication:
             payload = request.data['payload']
             servserializer = DicomServerSerializers(data=dcm_server)
             remote_scp = servserializer.initial_data      
-            local_ae = settings.LOCAL_AET
-
-
             handlers =[(evt.EVT_C_STORE, self.__handle_store)]
             st= time.time()
             req_dataset =dcm.Dataset()
@@ -221,7 +225,7 @@ class DcmCommunication:
                 req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
             req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-            assoc= self.__get_association(local_ae, remote_scp,False, handlers=handlers)
+            assoc= self.__get_association(self.local_aetitle, remote_scp,False, handlers=handlers)
             self.get_file_list.clear() 
 
             nr_sub_completed = 0
@@ -276,8 +280,8 @@ class DcmCommunication:
             FileSystemStorage(location=store_path).save(file_name, file)
             file_path = os.path.join(store_path,file_name)
     
-            local_ae = settings.LOCAL_AET
-            assoc= self.__get_association(local_ae, remote_scp, True)
+           
+            assoc= self.__get_association(self.local_aetitle, remote_scp, True)
             ds = dcm.dcmread(file_path)
             if assoc.is_established:
                 # Use the C-STORE service to send the dataset
@@ -339,6 +343,9 @@ class DcmCommunication:
             raise  Exception('An error occurred: %s', e)
         
 
+
+   
+
     def execute_c_move(self,request):
 
         try:    
@@ -349,7 +356,6 @@ class DcmCommunication:
             destination_aetitle = request.data['destinationaetitle']
             servserializer = DicomServerSerializers(data=dcm_server)
             remote_scp = servserializer.initial_data      
-            local_ae = settings.LOCAL_AET
             logger.debug('Find request %s to : %s %s:%s',query_retrieve_level, remote_scp['aetitle'],remote_scp['host'],remote_scp['port']) 
             st= time.time()
             req_dataset =dcm.Dataset()
@@ -358,7 +364,7 @@ class DcmCommunication:
                 req_dataset.add_new([int(dcm_tag['group'],16),int(dcm_tag['element'],16)],dcm_tag['vr'],dcm_tag['value'])
             req_dataset.QueryRetrieveLevel = query_retrieve_level
 
-            assoc= self.__get_association(local_ae, remote_scp, False)
+            assoc= self.__get_association(self.local_aetitle, remote_scp, False)
             if assoc.is_established:
             # Send the C-MOVE request
 
