@@ -8,6 +8,7 @@ from django.conf import settings
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove, 
     StudyRootQueryRetrieveInformationModelFind,
@@ -234,7 +235,7 @@ class DcmCommunication:
             nr_sub_failed = 0
 
             if assoc.is_established:
-                responses = assoc.send_c_get(req_dataset, PatientRootQueryRetrieveInformationModelGet)
+                responses = assoc.send_c_get(req_dataset, StudyRootQueryRetrieveInformationModelGet)
             
                 for  (status, identifier)  in responses:
 
