@@ -1,4 +1,4 @@
-from .views import login, signup, delete, users, test_auth_token, user, signupprofileavatar, update, config, config_update
+from .views import login, signup, delete, users, test_auth_token, user, signupprofileavatar, update, config, config_update, version
 from django.urls import path
 
 from rest_framework_simplejwt.views import( TokenObtainPairView, TokenRefreshView)
@@ -17,4 +17,5 @@ urlpatterns=[
     path('token/refresh',TokenRefreshView.as_view(), name='token_refresh'),
     path ('config', config),
     path ('config/update/<int:pk>', config_update),
+    path ('version', version),
 ]

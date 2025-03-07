@@ -13,6 +13,7 @@ from django.conf import settings
 import os
 from django.core.files.storage import FileSystemStorage  
 import logging
+import baseproject
 __logger = logging.getLogger('backenddjango')
 #SIGNUP
 @api_view(['POST'])
@@ -172,3 +173,7 @@ def config_update(request, pk):
     setting.save()
     return JsonResponse({'message': setting.id, 'status': status.HTTP_201_CREATED})
 
+#version
+@api_view(['GET'])
+def version(request):   
+    return JsonResponse({'version':baseproject.__build__ ,'status':status.HTTP_200_OK})

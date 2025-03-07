@@ -31,9 +31,9 @@ if not os.path.exists(DCM_PATH):
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 try:
-    baseproject.__build__ =subprocess.check_output(["git", "describe", "--tags", "--always"], cwd=BASE_DIR).decode('utf-8').strip()
+    baseproject.__build__ = f'v-{baseproject.__version__}-' + subprocess.check_output(["git", "describe", "--tags", "--always"], cwd=BASE_DIR).decode('utf-8').strip()
 except:
-    baseproject.__build__ = baseproject.__version__ + " ?"
+    baseproject.__build__ = f'v-{baseproject.__version__}-?'
 
 
 print('current build:', baseproject.__build__)
