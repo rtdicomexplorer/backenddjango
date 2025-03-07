@@ -10,12 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import baseproject 
+import subprocess
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta, datetime
 import logging
 load_dotenv(override=True)
+
+
 
 
 LOCAL_AET = os.getenv('LOCAL_AETITLE', default='localscu')
@@ -25,6 +29,14 @@ if not os.path.exists(DCM_PATH):
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+try:
+    baseproject.__build__ =subprocess.check_output(["git", "describe", "--tags", "--always"], cwd=BASE_DIR).decode('utf-8').strip()
+except:
+    baseproject.__build__ = baseproject.__version__ + " ?"
+
+
+print('current build:', baseproject.__build__)
 
 LOGS_DIR =  './logs/backend'  #os.path.join(BASE_DIR,'logs','fhir_backend')
 
