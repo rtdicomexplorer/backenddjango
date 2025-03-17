@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from django.conf import settings
 
 import pydicom as dcm
-
+from pydicom import config
+config.settings.reading_validation_mode = config.IGNORE
 import logging
 from PIL import Image
 import numpy as np  
