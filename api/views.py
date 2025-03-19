@@ -14,7 +14,8 @@ import os
 from django.core.files.storage import FileSystemStorage  
 import logging
 import baseproject
-__logger = logging.getLogger('backenddjango')
+__logger_back = logging.getLogger('backenddjango')
+__logger_front = logging.getLogger('frontend')
 #SIGNUP
 @api_view(['POST'])
 def signup(request):
@@ -123,7 +124,7 @@ def user(request, pk):
         img_file = open(img_path, "rb")
         img64 =  base64.b64encode(img_file.read()).decode('utf-8')
     except Exception as e:
-        __logger.exception(e)       
+        __logger_back.exception(e)       
         img64 = ''
     serializer = CustomUserSerializers(user)
     return JsonResponse({"avatar": img64, "data": serializer.data, "status":status.HTTP_200_OK})
@@ -177,3 +178,19 @@ def config_update(request, pk):
 @api_view(['GET'])
 def version(request):   
     return JsonResponse({'version':baseproject.__build__ ,'status':status.HTTP_200_OK})
+
+
+#logs
+@api_view(['POST'])
+def logs(request):   
+    print('POST log request incoming')
+    #data  var msg = $"MESSAGE: {request.data['Message'] - " +
+    # $"FILE: {request.data['FileName'] - " +
+    # $"LEVEL: {request.data['Level'] - " +
+    # $"LINENUMBER: {request.data['LineNumber'] - " +
+    # $"TIMESTAMP: {request.data['Timestamp:F']" +
+    # $"USER: {User.Identity.Name']";
+    print(request.data['message'])
+
+    __logger_front.info(request.data['message'])
+    return JsonResponse({'message': '', 'status':status.HTTP_200_OK})

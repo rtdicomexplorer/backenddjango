@@ -1,4 +1,4 @@
-from .views import login, signup, delete, users, test_auth_token, user, signupprofileavatar, update, config, config_update, version
+from .views import login, signup, delete, users, test_auth_token, user, signupprofileavatar, update, config, config_update,version, logs
 from django.urls import path
 
 from rest_framework_simplejwt.views import( TokenObtainPairView, TokenRefreshView)
@@ -18,4 +18,5 @@ urlpatterns=[
     path ('config', config),
     path ('config/update/<int:pk>', config_update),
     path ('version', version),
+    path ('logs/', logs),
 ]

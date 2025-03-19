@@ -13,6 +13,7 @@ RUN pip install --upgrade pip
 RUN pip install -r $REQUIREMENTS_FILE --no-cache-dir --no-compile
 RUN mkdir logs
 RUN mkdir logs/backend
+RUN mkdir logs/frontend
 RUN mkdir logs/nginx
 RUN mkdir static
 RUN mkdir /media/avatars

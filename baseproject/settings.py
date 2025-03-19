@@ -39,11 +39,17 @@ except:
 print('current build:', baseproject.__build__)
 
 LOGS_DIR =  './logs/backend'  #os.path.join(BASE_DIR,'logs','fhir_backend')
-
 if not os.path.exists(LOGS_DIR):
         os.makedirs(LOGS_DIR)
 
-log_file_name =  os.path.join(LOGS_DIR,f"{datetime.now().strftime('%Y%m%d')}.log")
+LOGS_DIR_FRONT = './logs/frontend'
+if not os.path.exists(LOGS_DIR_FRONT):
+        os.makedirs(LOGS_DIR_FRONT)
+
+log_file_name_back =  os.path.join(LOGS_DIR,f"{datetime.now().strftime('%Y%m%d')}.log")
+
+log_file_name_front =  os.path.join(LOGS_DIR_FRONT,f"{datetime.now().strftime('%Y%m%d')}.log")
+
 ##logger
 LOGGING = {
     "version": 1,
@@ -60,10 +66,15 @@ LOGGING = {
         },
     },
     "handlers": {
-        "file": {
+        "file_backend": {
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": f"{log_file_name}",
+            "filename": f"{log_file_name_back}",
+            },
+        "file_frontend": {
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": f"{log_file_name_front}",
             },
         "console": {
             "class": "logging.StreamHandler",
@@ -72,7 +83,7 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console",'file'],
+            "handlers": ["console",'file_backend', 'file_frontend'],
             "level":"CRITICAL",
             "propagate": True,
         },
@@ -87,7 +98,12 @@ LOGGING = {
             'propagate': False,  
         }, 
         'backenddjango': {  
-            'handlers': ['file'],  
+            'handlers': ['file_backend'],  
+            'level': 'DEBUG',  
+            'propagate': False,  
+        }, 
+        'frontend': {  
+            'handlers': ['file_frontend'],  
             'level': 'DEBUG',  
             'propagate': False,  
         }, 
