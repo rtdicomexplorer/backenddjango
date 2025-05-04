@@ -1,0 +1,78 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "121312421",
+        "identifier": [
+          {
+            "system": "urn:dicom:patientid",
+            "value": "PIKR750000"
+          }
+        ],
+        "name": [
+          {
+            "family": "Smith",
+            "given": [
+              "Harold"
+            ]
+          }
+        ],
+        "gender": "m"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "18767-4",
+              "display": "DICOM Structured Report"
+            }
+          ],
+          "text": "DICOM Structured Report"
+        },
+        "subject": {
+          "reference": "Patient/d2a094b7-2bc2-4324-be3b-939e19f308b1"
+        },
+        "valueString": "Study Description: OFFIS Structured Reporting Samples\nSeries Description: RSNA '95, Picker, CT\nModality: SR"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DocumentReference",
+        "identifier": [
+          {
+            "system": "urn:dicom:uid",
+            "value": "1.2.276.0.7230010.3.1.4.2155604110.4180.1021041296.55"
+          }
+        ],
+        "status": "current",
+        "type": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "18748-4",
+              "display": "Diagnostic imaging study"
+            }
+          ]
+        },
+        "description": "RSNA '95, Picker, CT",
+        "content": [
+          {
+            "attachment": {
+              "contentType": "application/dicom",
+              "url": "urn:oid:1.2.276.0.7230010.3.1.4.2155604110.4180.1021041296.55",
+              "title": "DICOM SR Report"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
