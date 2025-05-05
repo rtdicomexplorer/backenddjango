@@ -18,3 +18,9 @@ Content-Type: application/json
 GET http://127.0.0.1:8000/fhir/servers
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3OTA4NDUxLCJpYXQiOjE3Mzc5MDc4NTEsImp0aSI6ImZkZmI5NDI2Y2M4MzRiY2NiZTM3ZTNhNzBiNWJmM2MwIiwidXNlcl9pZCI6MSwibmFtZSI6InRlc3QifQ.jO8Fq0MP1WNhLux0QT-UcxduJwcH6GExXJcTJZPkHw0
+
+
+
+
+### LIST
+GET https://hapi.fhir.org/baseR4/ResearchStudy?_id=642249&_include=ResearchStudy:site&_include=ResearchStudy:principalinvestigator&_revinclude=ResearchSubject:study
