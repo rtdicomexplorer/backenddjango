@@ -65,4 +65,4 @@ venv.bak/
 # VS Code
 .vscode
 test
-test
+test/
