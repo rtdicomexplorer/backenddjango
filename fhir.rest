@@ -23,4 +23,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 ### LIST
-GET https://hapi.fhir.org/baseR4/ResearchStudy?_id=642249&_include=ResearchStudy:site&_include=ResearchStudy:principalinvestigator&_revinclude=ResearchSubject:study
+GET https://hapi.fhir.org/baseR4/ResearchStudy?_id=642249&_revinclude=ResearchSubject:study&_revinclude=CarePlan:based-on&_revinclude=ServiceRequest:based-on&_revinclude=Communication:based-on
