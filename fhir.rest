@@ -22,5 +22,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 
 
 
-### LIST
+### hapi
 GET https://hapi.fhir.org/baseR4/ResearchStudy?_id=642249&_revinclude=ResearchSubject:study&_revinclude=CarePlan:based-on&_revinclude=ServiceRequest:based-on&_revinclude=Communication:based-on
+
+
+
+### smarth _revinclude
+GET https://r4.smarthealthit.org/Patient?name=theola&_revinclude=Observation:subject
+
+
+### smarth include
+GET https://r4.smarthealthit.org/Observation?_id=d76623f6-79a8-4609-a317-c832fdeed337&_include=Observation:subject
