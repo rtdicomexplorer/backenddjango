@@ -33,3 +33,28 @@ GET https://r4.smarthealthit.org/Patient?name=theola&_revinclude=Observation:sub
 
 ### smarth include
 GET https://r4.smarthealthit.org/Observation?_id=d76623f6-79a8-4609-a317-c832fdeed337&_include=Observation:subject
+
+
+
+###hcp template 
+POST https://racoon.uniklinik-freiburg.de:6443/oauth/token
+Content-Type: application/json
+data: {"grant_type": "client_credentials"}
+Autrization: ("abac27d7-b2af-41ff-b879-f2efeb98064b", "Plg1g~Tx5Q2gw4I246ACJ2ef80")
+
+
+
+###hcp template 
+get https://racoon.uniklinik-freiburg.de:6443/fhir/Patient
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3OTA4NDUxLCJpYXQiOjE3Mzc5MDc4NTEsImp0aSI6ImZkZmI5NDI2Y2M4MzRiY2NiZTM3ZTNhNzBiNWJmM2MwIiwidXNlcl9pZCI6MSwibmFtZSI6InRlc3QifQ.jO8Fq0MP1WNhLux0QT-UcxduJwcH6GExXJcTJZPkHw0
+
+#https://github.com/d4vidsha/implementing-oauth-2.0-with-python/blob/main/example-oauth-2.0-with-client-credentials.py
+
+
+
+# def get_new_token():
+#     token_req_payload = {'grant_type': 'client_credentials'}
+#     response = requests.post(tokenurl,
+#     data=token_req_payload, verify=False, allow_redirects=False,
+#     auth=(clientid, clientkey))
+
