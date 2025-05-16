@@ -37,24 +37,24 @@ GET https://r4.smarthealthit.org/Observation?_id=d76623f6-79a8-4609-a317-c832fde
 
 
 ###hcp template 
-POST https://racoon.uniklinik-freiburg.de:6443/oauth/token
-Content-Type: application/json
-data: {"grant_type": "client_credentials"}
-Autrization: ("abac27d7-b2af-41ff-b879-f2efeb98064b", "Plg1g~Tx5Q2gw4I246ACJ2ef80")
+POST https://racoon.uniklinik-freiburg.de:6443/oauth2/token/
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic YWJhYzI3ZDctYjJhZi00MWZmLWI4NzktZjJlZmViOTgwNjRiOlBsZzFnflR4NVEyZ3c0STI0NkFDSjJlZjgw
+
+grant_type=client_credentials
+
+
+# &client_id=abac27d7-b2af-41ff-b879-f2efeb98064b
+# &client_secret=Plg1g~Tx5Q2gw4I246ACJ2ef80 
+
+
 
 
 
 ###hcp template 
 get https://racoon.uniklinik-freiburg.de:6443/fhir/Patient
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3OTA4NDUxLCJpYXQiOjE3Mzc5MDc4NTEsImp0aSI6ImZkZmI5NDI2Y2M4MzRiY2NiZTM3ZTNhNzBiNWJmM2MwIiwidXNlcl9pZCI6MSwibmFtZSI6InRlc3QifQ.jO8Fq0MP1WNhLux0QT-UcxduJwcH6GExXJcTJZPkHw0
-
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjhmZmU5ZjUzLTg0OTgtNGU2Mi1iOWYwLTExNmUxOTQzNjljMSIsInR5cCI6IkpXVCJ9.eyJhdWQiOltdLCJjbGllbnRfaWQiOiJhYmFjMjdkNy1iMmFmLTQxZmYtYjg3OS1mMmVmZWI5ODA2NGIiLCJleHAiOjE3NDcyMjY4ODMsImV4dCI6e30sImlhdCI6MTc0NzIyNTk4MywiaXNzIjoiaHR0cHM6Ly9yYWNvb24taGNwIiwianRpIjoiMjg0YWMzNGMtYTc5My00YjMxLTg3MjQtNDJkNWZmZWIwZjNjIiwibmJmIjoxNzQ3MjI1OTgzLCJzY3AiOltdLCJzdWIiOiJhYmFjMjdkNy1iMmFmLTQxZmYtYjg3OS1mMmVmZWI5ODA2NGIifQ.rEN45yriqR5d9HhRQ9KFnOKar1pI6-Oui3_GjtdmeUVhfbf4tbb08ZHoeQHigadA6WbhkhT5OOcUP5u-kUGxX5v9sM60ZNiKnj-MEXFlJufrhKMHfl7geQfPz-TeBBPFzg4n3Le1Gfo9SDNekO2y2wgshS1vrLwtN3_UnBZc-J1N3U50NPSVcfUBygyXUXT8YfH1wuvKjVQJsuaek_N4itBH5OUT8ZrF4FYug6mO0PsTIlmX0gVcfnawHXC3YYi81X6jTfrYOdHvQfCTT5z7dpt0_qV2sCGkz7MciqFQv1cXqGdCw9A2F99atT-Aque6RTyC7yOQM75mYwxKxT5cgeXVxelrVdf4fQu2YQTv9xroUCvYzFXiaZaAAWrWJnGRHx6jj8n72MCX39u9D4TL9NG-rN8PvneXgNA_5euTlQaJbMUJEAJSaeWCC7jjWMp5kRWQ2PNVAt-8h1UkueXL0dge-Aug6GVsFn0QAopINNZjnQOPANUyI528jSeqVdQPWu2wGau4s8hIdy20pAS519QAAbwdtlTn31IpyDOLfzqKStnFlFuvZJgYJ0NSeyltjZB1x56swlntQpUBGfI_3miTtyOOhuCIfqIflBy8hqrwkj6rIeEoaztfMKCxyLcVA-oT0cKqCgiMgEfX5y6u3RDf_Og7XwkD-rEoAFyfGLU
 #https://github.com/d4vidsha/implementing-oauth-2.0-with-python/blob/main/example-oauth-2.0-with-client-credentials.py
 
 
-
-# def get_new_token():
-#     token_req_payload = {'grant_type': 'client_credentials'}
-#     response = requests.post(tokenurl,
-#     data=token_req_payload, verify=False, allow_redirects=False,
-#     auth=(clientid, clientkey))
 
