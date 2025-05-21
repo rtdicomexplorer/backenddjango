@@ -19,8 +19,9 @@ def echo_command(request):
             rsp_status = status.HTTP_503_SERVICE_UNAVAILABLE  
         return JsonResponse( {'message': result['message'], 'status': rsp_status})
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        __logger.exception(value_error)
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 #C-FIND command
@@ -37,8 +38,9 @@ def find_command(request):
             return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
 
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        __logger.exception(value_error)
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 
@@ -57,8 +59,9 @@ def get_command(request):
             return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
 
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        __logger.exception(value_error)
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 #C-MOVE command
@@ -75,8 +78,9 @@ def move_command(request):
             return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
 
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        __logger.exception(value_error)
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 
@@ -96,8 +100,9 @@ def store_command(request):
             return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
 
     except Exception as e:
-        __logger.exception('An error occurred: %s', e)
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        __logger.exception(value_error)
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 
@@ -106,7 +111,8 @@ def get_binary(request):
     try:            
         return HttpResponse(get_binaryimage(request), content_type='application/octet-stream')
     except Exception as e:
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 @api_view(['POST'])
 def get_base64(request):
@@ -115,7 +121,8 @@ def get_base64(request):
         return JsonResponse( {'data': get_base64image(request),'status': status.HTTP_200_OK })
 
     except Exception as e:
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
 
 
 @api_view(['POST'])
@@ -124,4 +131,5 @@ def get_dicom_file_list(request):
         file_to_send = get_dcm_filelist(request)
         return JsonResponse( {'data': file_to_send ,'status': status.HTTP_200_OK })
     except Exception as e:
-        return JsonResponse( {'message': e, 'status': status.HTTP_400_BAD_REQUEST})
+        value_error =  f'An error occurred: {e.args[0]}'
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})

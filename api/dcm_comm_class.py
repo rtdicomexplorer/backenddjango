@@ -153,7 +153,8 @@ class DcmCommunication:
 
 
         except Exception as e:
-            logger.exception('An error occurred: %s', e)
+            value_error =  f'An error occurred: {e.args[0]}'
+            logger.exception(value_error)
             error = str(list(servserializer.errors.values())[0][0])
             raise  Exception(error)
     
@@ -206,7 +207,8 @@ class DcmCommunication:
                 logger.info('Association rejected, aborted or never connected')
                 return {'message': 'Association rejected, aborted or never connected'}
         except Exception as e:
-            logger.exception('An error occurred: %s', e)
+            value_error =  f'An error occurred: {e.args[0]}'
+            logger.exception(value_error)
             error = str(list(servserializer.errors.values())[0][0])
             raise  Exception(error)
 
@@ -263,7 +265,8 @@ class DcmCommunication:
                 logger.info('Association rejected, aborted or never connected')
                 return {'message': 'Association rejected, aborted or never connected'}
         except Exception as e:
-            logger.exception('An error occurred: %s', e)
+            value_error =  f'An error occurred: {e.args[0]}'
+            logger.exception(value_error)
             error = str(list(servserializer.errors.values())[0][0])
             raise  Exception(error)
 
@@ -306,10 +309,11 @@ class DcmCommunication:
                 response['status']= False
                 response['message']= 'Association rejected, aborted or never connected'
             return response
-        except Exception as e:        
-            logger.exception('An error occurred: %s', e)       
+        except Exception as e:       
+            value_error =  f'An error occurred: {e.args[0]}'
+            logger.exception(value_error)       
             response['status']= False
-            response['message']= 'An error occurred: %s', e
+            response['message']= value_error
             
         finally:
             if os.path.exists(file_path):
@@ -335,13 +339,15 @@ class DcmCommunication:
                         result = self.__handle_uploaded_file_to_store(file,file_name,remote_scp)
                         response.append(result)
                     except Exception as e:
-                        logger.exception('An error occurred: %s', e)
+                        value_error =  f'An error occurred: {e.args[0]}'
+                        logger.exception(value_error)
 
             return {'message': '', 'response' : response}
 
         except Exception as e:
-            logger.exception('An error occurred: %s', e)
-            raise  Exception('An error occurred: %s', e)
+            value_error =  f'An error occurred: {e.args[0]}'
+            logger.exception(value_error)
+            raise  Exception(e)
         
 
 
