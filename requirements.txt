@@ -20,3 +20,8 @@ sqlparse==0.5.3
 tzdata==2024.2
 urllib3==2.2.1
 whitenoise==6.8.2
+fhir.resources==7.1.0
+pandas
+lxml
+tqdm
+pydantic==2.10.4
