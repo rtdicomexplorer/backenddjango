@@ -3,8 +3,6 @@ import argparse
 from typing import List
 from fhir.resources.R4B.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhir.resources.R4B.resource import Resource
-from fhir.resources.R4B.patient import Patient
-from fhir.resources.R4B import identifier
 
 from dicom2fhir import dicom2fhir
 import requests
@@ -15,7 +13,7 @@ def process_study(root_path, output_path, include_instances, build_bundle, creat
         str(root_path), include_instances
     )
 
-    print(patient)
+
     study_id = accession_nr
     if accession_nr is None:
         study_id = str(study_instance_uid)
@@ -28,9 +26,8 @@ def process_study(root_path, output_path, include_instances, build_bundle, creat
         result_list = []
         result_list.append(result_resource)
         result_list.append(patient)
-
-
-  
+        devs = [x[0] for x in dev_list]
+        result_list = result_list + devs
 
         result_bundle = build_from_resources(result_list, study_instance_uid)
 
@@ -48,12 +45,12 @@ def process_study(root_path, output_path, include_instances, build_bundle, creat
 
         print(response)
 
-        # try:
-        #     jsonfile = output_path + str(study_id) + "_bundle.json"
-        #     with open(jsonfile, "w+") as outfile:
-        #         outfile.write(result_bundle.json())
-        # except Exception:
-        #     print("Unable to create ImagingStudy JSON-file (probably missing identifier)")
+        try:
+            jsonfile = output_path + str(study_id) + "_bundle.json"
+            with open(jsonfile, "w+") as outfile:
+                outfile.write(result_bundle.json())
+        except Exception:
+            print("Unable to create ImagingStudy JSON-file (probably missing identifier)")
     else:
         try:
             jsonfile = output_path + str(id) + "_imagingStudy.json"
@@ -160,6 +157,6 @@ if __name__ == "__main__":
 
     args = arg_parser().parse_args()
 
-    path_dicom = r'C:\challenge_data\validation\input_data\66359456\1.4.229.0.1.8882135.4.232.1560736817461537176\1.4.229.0.1.8882135.4.232.9368788976563694449'
+    path_dicom = r'C:\repos\dicom files\mint-export'
 
-    process_study(path_dicom, '0000001.json',True , True, True)
+    process_study(path_dicom, 'mint.json',True , True, True)
