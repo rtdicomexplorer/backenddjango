@@ -1,4 +1,4 @@
-from dicom2fhir import dicom2fhirutils
+from ..dicom2fhir import dicom2fhirutils
 
 
 def gen_extension(ds):

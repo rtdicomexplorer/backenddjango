@@ -5,6 +5,7 @@ from fhir.resources.R4B import imagingstudy
 from fhir.resources.R4B import identifier
 from fhir.resources.R4B.patient import Patient
 from fhir.resources.R4B import meta
+from fhir.resources.R4B.humanname import HumanName
 from pydicom import dcmread
 from pydicom import dataset
 import logging
@@ -12,17 +13,17 @@ import hashlib
 
 from tqdm import tqdm
 
-from dicom2fhir import dicom2fhirutils
-from dicom2fhir import extension_MR
-from dicom2fhir import extension_CT
-from dicom2fhir import extension_MG_CR_DX
-from dicom2fhir import extension_PT
-from dicom2fhir import extension_NM
-from dicom2fhir import extension_contrast
-from dicom2fhir import extension_instance
-from dicom2fhir import extension_reason
+from ..dicom2fhir import dicom2fhirutils
+from ..dicom2fhir import extension_MR
+from ..dicom2fhir import extension_CT
+from ..dicom2fhir import extension_MG_CR_DX
+from ..dicom2fhir import extension_PT
+from ..dicom2fhir import extension_NM
+from ..dicom2fhir import extension_contrast
+from ..dicom2fhir import extension_instance
+from ..dicom2fhir import extension_reason
 
-from dicom2fhir import create_device
+from ..dicom2fhir import create_device
 
 
 # global list for all distinct series modalities
@@ -56,7 +57,12 @@ def _add_imaging_study_instance(
         value="urn:oid:" + ds.SOPClassUID,
         system=dicom2fhirutils.SOP_CLASS_SYS
     )
-    instance_data["number"] = ds.InstanceNumber
+
+    try:
+        instance_data["number"] = ds.InstanceNumber
+    except:
+        print("No instance nr. found")
+        pass      
 
     ########### extension stuff here ##########
 
@@ -360,28 +366,32 @@ def process_dicom_2_fhir(dcmDir: str, include_instances: bool) -> imagingstudy.I
             pass  # file is not a dicom file
 
     fhir_id = imagingStudy.subject.reference.split('/')[1] # patient_data['ID']
-    fhir_name_cmps = str(patient_data['name']).split('^')    
-    given_name = '' if fhir_name_cmps[1] is None else fhir_name_cmps[1]
-    gender = 'female' if patient_data['gender']=='F' else 'male'
-    birthdate = str(patient_data['birthdate'])
-    fhirdate =''
-    if birthdate is not None and len(birthdate)>=8:
-        fhirdate = f'{birthdate[:4]}-{birthdate[4:6]}-{birthdate[6:8]}'
-
-    patIdent = identifier.Identifier()
-    patIdent.system = "https://fhir.diz.uk-erlangen.de/identifiers/patient-id"
-    # patIdent.type = dicom2fhirutils.gen_codeable_concept(
-    # ["MR"], "http://terminology.hl7.org/CodeSystem/v2-0203")
-    patIdent.value = patient_data['ID']
+    # fhir_name_cmps = str(patient_data['name']).split('^')    
+    # given_name = '' if fhir_name_cmps[1] is None else fhir_name_cmps[1]
+    # gender = 'female' if patient_data['gender']=='F' else 'male'
+    # birthdate = str(patient_data['birthdate'])
+    # fhirdate =''
+    # if birthdate is not None and len(birthdate)>=8:
+    #     fhirdate = f'{birthdate[:4]}-{birthdate[4:6]}-{birthdate[6:8]}'
 
 
+      
+    # identifier = [identifier.Identifier(value=patient_data["ID"])],
 
-    patient = Patient(**{"id": fhir_id, "name": [{"use": "official", "family":fhir_name_cmps[0] , "given": [given_name]}], "gender": gender,
-    "birthDate": fhirdate})
-    # patient.identifier = patIdent  TODO
-        
-    
 
+    patient = dicom2fhirutils.inline_patient_resource(fhir_id, patient_data['ID'], None, patient_data['name'], patient_data['gender'], patient_data['birthdate'])
+
+
+    # patient =  Patient(
+    #         id=fhir_id,
+    #         identifier=[identifier],
+    #         name=[HumanName(family=fhir_name_cmps[0],given=[given_name],use='official')],
+    #         gender=gender,
+    #         active=True,
+    # )
+ 
+    # if fhirdate!='':
+    #     patient.birthDate = fhirdate 
 
 
     # add modality list to study level

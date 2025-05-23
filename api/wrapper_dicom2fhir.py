@@ -4,10 +4,11 @@ from typing import List
 from fhir.resources.R4B.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhir.resources.R4B.resource import Resource
 
-from dicom2fhir import dicom2fhir
+from .dicom2fhir import dicom2fhir
 import requests
+import time
 # wrapper function to process study
-def process_study(root_path, output_path, include_instances, build_bundle, create_device):
+def process_study(root_path, output_path, include_instances, build_bundle, create_device, fhir_server = None):
 
     result_resource, study_instance_uid, accession_nr, dev_list, patient = dicom2fhir.process_dicom_2_fhir(
         str(root_path), include_instances
@@ -32,18 +33,20 @@ def process_study(root_path, output_path, include_instances, build_bundle, creat
         result_bundle = build_from_resources(result_list, study_instance_uid)
 
         # need to sent to FHIR
-        session = requests.Session()
-        response = session.post(
-            "http://193.196.214.170:8080/fhir/",
-            result_bundle.json() ,
-            headers={
-                "Content-type": "application/fhir+json",
-            }
-        )
-            # now we extract the patient_id that was returned to us
-        response.raise_for_status()
+        if fhir_server is not None:
+            session = requests.Session()
+            response = session.post(
+                fhir_server,
+                result_bundle.json() ,
+                headers={
+                    "Content-type": "application/fhir+json",
+                }
+            )
+                # now we extract the patient_id that was returned to us
+            response.raise_for_status()
+            time.sleep(1)
 
-        print(response)
+            print(response)
 
         try:
             jsonfile = output_path + str(study_id) + "_bundle.json"
@@ -73,19 +76,6 @@ def process_study(root_path, output_path, include_instances, build_bundle, creat
 
 # build FHIR bundle from resource
 def build_from_resources(resources: List[Resource], id: str | None) -> Bundle:
-
-
-
-#     first_resource = resources[0]
-
-#     pat_id = first_resource.subject.reference.split('/')[1]
-
-    
-
-#     patient = Patient(**{"id": pat_id, "name": [{"use": "official", "family": "Test", "given": ["Automatic"]}], "gender": "female",
-#     "birthDate": "2025-05-21"
-# })
-    # resources.append(patient)
 
     bundle_id = id
 

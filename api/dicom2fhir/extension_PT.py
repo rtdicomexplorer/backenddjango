@@ -1,4 +1,4 @@
-from dicom2fhir import dicom2fhirutils
+from ..dicom2fhir import dicom2fhirutils
 import logging
 import pandas as pd
 

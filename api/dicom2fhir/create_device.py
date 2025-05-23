@@ -4,7 +4,7 @@ from fhir.resources.R4B import device
 from fhir.resources.R4B import identifier
 from fhir.resources.R4B import meta
 
-from dicom2fhir import dicom2fhirutils
+from ..dicom2fhir import dicom2fhirutils
 
 
 def create_device(manufacturer, manufacturerModelName, deviceSerialNumber) -> device.Device:

@@ -90,12 +90,18 @@ def move_command(request):
 @api_view(['POST'])
 def store_command(request):
     try:      
+        settings.DATA_UPLOAD_MAX_NUMBER_FILES = None
         dcm_com = DcmCommunication()
         result = dcm_com.execute_c_store(request)
         message = result['message']
         if message == '':
-            items_found = result['response']          
-            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK})
+            items_found = result['response'] 
+            fhir = result['fhir']  
+            if fhir is not None:       
+                return JsonResponse({'data': items_found ,'fhir':fhir, 'status': status.HTTP_200_OK})
+            else:
+                return JsonResponse({'data': items_found ,'status': status.HTTP_200_OK})
+            
         else:
             return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
 

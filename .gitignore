@@ -9,3 +9,4 @@ logs
 dcm_data
 static
 media/avatars
+*.json
