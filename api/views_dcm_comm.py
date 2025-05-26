@@ -96,9 +96,8 @@ def store_command(request):
         message = result['message']
         if message == '':
             items_found = result['response'] 
-            fhir = result['fhir']  
-            if fhir is not None:       
-                return JsonResponse({'data': items_found ,'fhir':fhir, 'status': status.HTTP_200_OK})
+            if 'fhir'in result:        
+                return JsonResponse({'data': items_found ,'fhir':result['fhir'], 'status': status.HTTP_200_OK})
             else:
                 return JsonResponse({'data': items_found ,'status': status.HTTP_200_OK})
             
