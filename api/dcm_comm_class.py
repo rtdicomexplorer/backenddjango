@@ -2,10 +2,9 @@ import logging
 import os
 from pynetdicom import AE, evt, build_role,debug_logger
 from django.core.files.storage import FileSystemStorage  
-from pathlib import Path
 import time
 from django.conf import settings
-from  api.wrapper_dicom2fhir import process_study
+from  api.launch_dicom2fhir import process_study
 import base64
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
@@ -328,11 +327,14 @@ class DcmCommunication:
         response = False
         try:                
             print('################### STARTING SEND TO FILES ################# files sent to fhir')
-            process_study(file_path, 'test.json',True , True, True, fhir_server)
+
+            process_study(root_path=file_path,include_instances=True,  build_bundle=True, output_path= '',create_device=True ,save_json_file= False,fhir_server= fhir_server)
             response = True
         except Exception as e:
             value_error =  f'An error occurred by send to fhir: {e.args[0]}'
+
             logger.exception(value_error)       
+            print(value_error)
         finally:
             return response
 

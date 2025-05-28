@@ -99,54 +99,54 @@ def build_from_resources(resources: List[Resource], id: str | None) -> Bundle:
     return bundle
 
 
-def arg_parser():
+# def arg_parser():
 
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument(
-        "-i",
-        "--input_path",
-        dest="input_path",
-        type=str,
-        help="The path of the study to be processed."
-    )
-    parser.add_argument(
-        "-o",
-        "--output_path",
-        dest="output_path",
-        type=str,
-        help="The path to write the output file in."
-    )
-    parser.add_argument(
-        "-l",
-        "--level_instance",
-        dest="include_instances",
-        default=True,
-        action=argparse.BooleanOptionalAction,
-        help="Option to exclude DICOM instance level from resource"
-    )
-    parser.add_argument(
-        "-b",
-        "--build_bundle",
-        dest="build_bundle",
-        default=False,
-        action=argparse.BooleanOptionalAction,
-        help="Option to build a FHIR bundle from the result resource"
-    )
-    parser.add_argument(
-        "-d",
-        "--create_device",
-        dest="create_device",
-        default=False,
-        action=argparse.BooleanOptionalAction,
-        help="Option to create the respective device resource for the performed ImagingStudy"
-    )
-    return parser
+#     parser = argparse.ArgumentParser(add_help=False)
+#     parser.add_argument(
+#         "-i",
+#         "--input_path",
+#         dest="input_path",
+#         type=str,
+#         help="The path of the study to be processed."
+#     )
+#     parser.add_argument(
+#         "-o",
+#         "--output_path",
+#         dest="output_path",
+#         type=str,
+#         help="The path to write the output file in."
+#     )
+#     parser.add_argument(
+#         "-l",
+#         "--level_instance",
+#         dest="include_instances",
+#         default=True,
+#         action=argparse.BooleanOptionalAction,
+#         help="Option to exclude DICOM instance level from resource"
+#     )
+#     parser.add_argument(
+#         "-b",
+#         "--build_bundle",
+#         dest="build_bundle",
+#         default=False,
+#         action=argparse.BooleanOptionalAction,
+#         help="Option to build a FHIR bundle from the result resource"
+#     )
+#     parser.add_argument(
+#         "-d",
+#         "--create_device",
+#         dest="create_device",
+#         default=False,
+#         action=argparse.BooleanOptionalAction,
+#         help="Option to create the respective device resource for the performed ImagingStudy"
+#     )
+#     return parser
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    args = arg_parser().parse_args()
+#     args = arg_parser().parse_args()
 
-    path_dicom = r'C:\repos\dicom files\mint-export'
+#     path_dicom = r'C:\repos\dicom files\mint-export'
 
-    process_study(path_dicom, 'mint.json',True , True, True)
+#     process_study(path_dicom, 'mint.json',True , True, True)
