@@ -11,41 +11,49 @@ DX_csv_file = os.path.join(script_dir, "DX_viewPosition_Mapping.csv")
 
 
 def _get_snomed_mapping_MG(url, debug: bool = False):
+    try:
+        logging.info(f"Get viewPosition-SNOMED mapping from {url}")
+        df = pd.read_html(url, converters={
+            "Code Value": str,
+            "ACR MQCM 1999 Equivalent": str,
+            "Code Meaning": str
+        })
 
-    logging.info(f"Get viewPosition-SNOMED mapping from {url}")
-    df = pd.read_html(url, converters={
-        "Code Value": str,
-        "ACR MQCM 1999 Equivalent": str,
-        "Code Meaning": str
-    })
+        # required columns
+        req_cols = ["Code Value", "Code Meaning", "ACR MQCM 1999 Equivalent"]
 
-    # required columns
-    req_cols = ["Code Value", "Code Meaning", "ACR MQCM 1999 Equivalent"]
+        mapping = df[2][req_cols]
 
-    mapping = df[2][req_cols]
+        # remove empty values:
+        mapping = mapping[~mapping['Code Value'].isnull()]
 
-    # remove empty values:
-    mapping = mapping[~mapping['Code Value'].isnull()]
-
-    return mapping
-
+        return mapping
+    except Exception as e:
+        value_error = f'Error when try to connect to {url} : {e.args[0]}'
+        print(value_error)
+        logging.error(value_error)
 def _get_snomed_mapping_DX(url, debug: bool = False):
+    try:
 
-    logging.info(f"Get viewPosition-SNOMED mapping from {url}")
-    df = pd.read_html(url, converters={
-        "Code Value": str,
-        "Code Meaning": str
-    })
+        logging.info(f"Get viewPosition-SNOMED mapping from {url}")
+        df = pd.read_html(url, converters={
+            "Code Value": str,
+            "Code Meaning": str
+        })
 
-    # required columns
-    req_cols = ["Code Value", "Code Meaning"]
+        # required columns
+        req_cols = ["Code Value", "Code Meaning"]
 
-    mapping = df[2][req_cols]
+        mapping = df[2][req_cols]
 
-    # remove empty values:
-    mapping = mapping[~mapping['Code Value'].isnull()]
+        # remove empty values:
+        mapping = mapping[~mapping['Code Value'].isnull()]
 
-    return mapping
+        return mapping
+    except Exception as e:
+        value_error = f'Error when try to connect to {url} : {e.args[0]}'
+        print(value_error)
+        logging.error(value_error)
 
 
 # get mapping table

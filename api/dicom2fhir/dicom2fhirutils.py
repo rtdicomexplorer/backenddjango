@@ -28,33 +28,35 @@ BODYSITE_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/outp
 
 
 def _get_snomed_bodysite_mapping(url, debug: bool = False):
+    try:
+        logging.info(f"Get BodySite-SNOMED mapping from {url}")
+        df = pd.read_html(url, converters={
+            "Code Value": str
+        })
 
-    logging.info(f"Get BodySite-SNOMED mapping from {url}")
-    df = pd.read_html(url, converters={
-        "Code Value": str
-    })
+        # required columns
+        req_cols = ["Code Value", "Code Meaning", "Body Part Examined"]
 
-    # required columns
-    req_cols = ["Code Value", "Code Meaning", "Body Part Examined"]
+        mapping = df[2][req_cols]
 
-    mapping = df[2][req_cols]
+        # remove empty values:
+        mapping = mapping[~mapping['Body Part Examined'].isnull()]
 
-    # remove empty values:
-    mapping = mapping[~mapping['Body Part Examined'].isnull()]
+        if debug:
+            fn_out = os.path.join(
+                os.curdir,
+                'mapping_dicom_snomed.csv'
+            )
+            mapping.to_csv(
+                path_or_buf=fn_out,
+                index=False
+            )
 
-    if debug:
-        fn_out = os.path.join(
-            os.curdir,
-            'mapping_dicom_snomed.csv'
-        )
-        mapping.to_csv(
-            path_or_buf=fn_out,
-            index=False
-        )
-
-    return mapping
-
-
+        return mapping
+    except Exception as e:
+        value_error = f'Error when try to connect to {url} : {e.args[0]}'
+        print(value_error)
+        logging.error(value_error)
 # get mapping table
 mapping_table = _get_snomed_bodysite_mapping(url=BODYSITE_SNOMED_MAPPING_URL)
 

@@ -7,20 +7,25 @@ radionuclide_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/
 
 
 def _get_snomed_mapping(url, debug: bool = False):
+    try:
 
-    logging.info(f"Get Radiopharmaceutical-SNOMED mapping from {url}")
-    df = pd.read_html(url, converters={
-        "Code Value": str,
-        "Code Meaning": str,
-        "SNOMED-RT ID": str
-    })
+        logging.info(f"Get Radiopharmaceutical-SNOMED mapping from {url}")
+        df = pd.read_html(url, converters={
+            "Code Value": str,
+            "Code Meaning": str,
+            "SNOMED-RT ID": str
+        })
 
-    # required columns
-    req_cols = ["Code Value", "Code Meaning", "SNOMED-RT ID"]
+        # required columns
+        req_cols = ["Code Value", "Code Meaning", "SNOMED-RT ID"]
 
-    mapping = df[2][req_cols]
+        mapping = df[2][req_cols]
 
-    return mapping
+        return mapping
+    except Exception as e:
+        value_error = f'Error when try to connect to {url} : {e.args[0]}'
+        print(value_error)
+        logging.error(value_error)
 
 
 # get mapping table
