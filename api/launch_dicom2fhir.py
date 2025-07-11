@@ -60,7 +60,7 @@ def process_study(root_path, include_instances, build_bundle, output_path, creat
             try:
                 jsonfile = output_path + str(study_id) + "_bundle.json"
                 with open(jsonfile, "w+") as outfile:
-                    outfile.write(result_bundle.json())
+                    outfile.write(result_bundle.model_dump_json())
             except Exception:
                 print("Unable to create ImagingStudy JSON-file (probably missing identifier)")
     else:
