@@ -1,10 +1,11 @@
 from ..dicom2fhir import dicom2fhirutils
 import logging
 import pandas as pd
-import time
+import os
 
 RADIONUCLEIDE_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_18.html"
 
+RADIONUCLEIDE_SNOMED_MAPPING_LOCAL_FILE ='RADIONUCLEIDE_SNOMED_MAPPING_URL.json'
 
 def parse_time_to_seconds(time_str):
     hours = int(time_str[:2])  # Erste 2 Zeichen sind Stunden
@@ -30,21 +31,24 @@ def _get_snomed_mapping(url, debug: bool = False):
 
         # remove empty values:
         mapping = mapping[~mapping['Code Value'].isnull()]
-
         return mapping
     except Exception as e:
-        value_error = f'Error when try to connect to {url} : {e.args[0]}'
+        value_error = f'⚠️ Error when try to connect to {url} : {e.args[0]}'
         print(value_error)
         logging.error(value_error)
-
+        if os.path.exists(RADIONUCLEIDE_SNOMED_MAPPING_LOCAL_FILE):
+            mapping = pd.read_json(RADIONUCLEIDE_SNOMED_MAPPING_LOCAL_FILE, orient="records")
+            return mapping
+        return None
 
 # get mapping table
-mapping_table = _get_snomed_mapping(url=RADIONUCLEIDE_SNOMED_MAPPING_URL)
+#mapping_table = _get_snomed_mapping(url=RADIONUCLEIDE_SNOMED_MAPPING_URL)
 
 
 def _get_snomed(snomed_rt, sctmapping):
     # codes are strings
-    return (sctmapping.loc[sctmapping['SNOMED-RT ID'] == snomed_rt]["Code Value"].values[0])
+    if sctmapping is not None:
+        return (sctmapping.loc[sctmapping['SNOMED-RT ID'] == snomed_rt]["Code Value"].values[0])
 
 
 def gen_extension(ds):
@@ -89,6 +93,7 @@ def gen_extension(ds):
     except Exception:
         pass
     try:
+        mapping_table = _get_snomed_mapping(url=RADIONUCLEIDE_SNOMED_MAPPING_URL)
         snomed_radionucleide = _get_snomed(
             ds[0x0054, 0x0016][0][0x0054,
                                   0x0300][0][0x0008, 0x0100].value, mapping_table)

@@ -6,6 +6,9 @@ import os
 
 viewPosision_MG_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_4014.html"
 viewPosision_DX_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_4010.html"
+
+viewPosision_MG_SNOMED_MAPPING_LOCAL_FILE ='viewPosision_MG_SNOMED_MAPPING_URL.json'
+viewPosision_DX_SNOMED_MAPPING_LOCAL_FILE = 'viewPosision_DX_SNOMED_MAPPING_URL.json'
 script_dir = os.path.dirname(__file__)
 DX_csv_file = os.path.join(script_dir, "DX_viewPosition_Mapping.csv")
 
@@ -32,6 +35,13 @@ def _get_snomed_mapping_MG(url, debug: bool = False):
         value_error = f'Error when try to connect to {url} : {e.args[0]}'
         print(value_error)
         logging.error(value_error)
+        if os.path.exists(viewPosision_MG_SNOMED_MAPPING_LOCAL_FILE):
+            mapping = pd.read_json(viewPosision_MG_SNOMED_MAPPING_LOCAL_FILE, orient="records")
+            return mapping
+        return None
+
+
+
 def _get_snomed_mapping_DX(url, debug: bool = False):
     try:
 
@@ -54,17 +64,22 @@ def _get_snomed_mapping_DX(url, debug: bool = False):
         value_error = f'Error when try to connect to {url} : {e.args[0]}'
         print(value_error)
         logging.error(value_error)
+        if os.path.exists(viewPosision_DX_SNOMED_MAPPING_LOCAL_FILE):
+            mapping = pd.read_json(viewPosision_DX_SNOMED_MAPPING_LOCAL_FILE, orient="records")
+            return mapping
+        return None
 
 
 # get mapping table
-mapping_table_MG = _get_snomed_mapping_MG(url=viewPosision_MG_SNOMED_MAPPING_URL)
+# mapping_table_MG = _get_snomed_mapping_MG(url=viewPosision_MG_SNOMED_MAPPING_URL)
 
-mapping_table_DX = _get_snomed_mapping_DX(url=viewPosision_DX_SNOMED_MAPPING_URL)
+# mapping_table_DX = _get_snomed_mapping_DX(url=viewPosision_DX_SNOMED_MAPPING_URL)
 
 
 def _get_snomed_MG(acr, sctmapping):
     # codes are strings
-    return (sctmapping.loc[sctmapping['ACR MQCM 1999 Equivalent'] == acr]["Code Value"].values[0])
+    if sctmapping is not None:
+        return (sctmapping.loc[sctmapping['ACR MQCM 1999 Equivalent'] == acr]["Code Value"].values[0])
 
 def _get_snomed_DX(code, sctmapping):
     # codes are strings
@@ -186,9 +201,16 @@ def gen_extension(ds):
     except Exception:
         pass
     try:
+
+       
+
+        
+
         if ds[0x0008, 0x0060].value == "MG":
+            mapping_table_MG = _get_snomed_mapping_MG(url=viewPosision_MG_SNOMED_MAPPING_URL)
             snomed_value = _get_snomed_MG(ds[0x0018, 0x5101].value, sctmapping=mapping_table_MG)
         elif ds[0x0008, 0x0060].value == "DX":
+            mapping_table_DX = _get_snomed_mapping_DX(url=viewPosision_DX_SNOMED_MAPPING_URL)
             snomed_value = _get_snomed_DX(ds[0x0018, 0x5101].value, sctmapping=mapping_table_DX)
             if snomed_value is None:
                 mapping = load_DX_mapping_from_csv(DX_csv_file)

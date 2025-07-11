@@ -26,6 +26,7 @@ SOP_CLASS_SYS = "urn:ietf:rfc:3986"
 
 BODYSITE_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html"
 
+BODYSITE_SNOMED_MAPPING_LOCAL_FILE = 'BODYSITE_SNOMED_MAPPING_URL.json'
 
 def _get_snomed_bodysite_mapping(url, debug: bool = False):
     try:
@@ -57,14 +58,21 @@ def _get_snomed_bodysite_mapping(url, debug: bool = False):
         value_error = f'Error when try to connect to {url} : {e.args[0]}'
         print(value_error)
         logging.error(value_error)
+        if os.path.exists(BODYSITE_SNOMED_MAPPING_LOCAL_FILE):
+            mapping = pd.read_json(BODYSITE_SNOMED_MAPPING_LOCAL_FILE, orient="records")
+            return mapping
+        return None
+
+
 # get mapping table
-mapping_table = _get_snomed_bodysite_mapping(url=BODYSITE_SNOMED_MAPPING_URL)
+#mapping_table = _get_snomed_bodysite_mapping(url=BODYSITE_SNOMED_MAPPING_URL)
 
 
 def _get_snomed(dicom_bodypart, sctmapping):
     # codes are strings
-    return (sctmapping.loc[sctmapping['Body Part Examined'] == dicom_bodypart]["Code Value"].values[0],
-            sctmapping.loc[sctmapping['Body Part Examined'] == dicom_bodypart]["Code Meaning"].values[0])
+    if(sctmapping is not None):
+        return (sctmapping.loc[sctmapping['Body Part Examined'] == dicom_bodypart]["Code Value"].values[0],
+                sctmapping.loc[sctmapping['Body Part Examined'] == dicom_bodypart]["Code Meaning"].values[0])
 
 
 def gen_accession_identifier(id):
@@ -256,7 +264,7 @@ def gen_codeable_concept(value_list: list, system, display=None, text=None):
 
 
 def gen_bodysite_coding(bd):
-
+    mapping_table = _get_snomed_bodysite_mapping(url=BODYSITE_SNOMED_MAPPING_URL)
     bd_snomed, meaning = _get_snomed(bd, sctmapping=mapping_table)
     c = gen_coding(
         value=bd_snomed,

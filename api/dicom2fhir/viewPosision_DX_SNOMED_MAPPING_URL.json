@@ -1,0 +1,170 @@
+[
+  {
+    "Code Value":"399033003",
+    "Code Meaning":"frontal"
+  },
+  {
+    "Code Value":"399160007",
+    "Code Meaning":"frontal oblique"
+  },
+  {
+    "Code Value":"399348003",
+    "Code Meaning":"antero-posterior"
+  },
+  {
+    "Code Value":"399312000",
+    "Code Meaning":"antero-posterior oblique"
+  },
+  {
+    "Code Value":"399038007",
+    "Code Meaning":"right posterior oblique"
+  },
+  {
+    "Code Value":"399006002",
+    "Code Meaning":"left posterior oblique"
+  },
+  {
+    "Code Value":"272479007",
+    "Code Meaning":"postero-anterior"
+  },
+  {
+    "Code Value":"399059000",
+    "Code Meaning":"postero-anterior oblique"
+  },
+  {
+    "Code Value":"399356000",
+    "Code Meaning":"right anterior oblique"
+  },
+  {
+    "Code Value":"399135007",
+    "Code Meaning":"left anterior oblique"
+  },
+  {
+    "Code Value":"30730003",
+    "Code Meaning":"sagittal"
+  },
+  {
+    "Code Value":"399260004",
+    "Code Meaning":"medial-lateral"
+  },
+  {
+    "Code Value":"260427002",
+    "Code Meaning":"lateral oblique"
+  },
+  {
+    "Code Value":"399352003",
+    "Code Meaning":"lateral-medial"
+  },
+  {
+    "Code Value":"260426006",
+    "Code Meaning":"medial oblique"
+  },
+  {
+    "Code Value":"399198007",
+    "Code Meaning":"right lateral"
+  },
+  {
+    "Code Value":"399236003",
+    "Code Meaning":"right oblique"
+  },
+  {
+    "Code Value":"399173006",
+    "Code Meaning":"left lateral"
+  },
+  {
+    "Code Value":"399184004",
+    "Code Meaning":"left oblique"
+  },
+  {
+    "Code Value":"399061009",
+    "Code Meaning":"axial"
+  },
+  {
+    "Code Value":"399162004",
+    "Code Meaning":"cranio-caudal"
+  },
+  {
+    "Code Value":"399196006",
+    "Code Meaning":"caudo-cranial"
+  },
+  {
+    "Code Value":"399004004",
+    "Code Meaning":"oblique axial"
+  },
+  {
+    "Code Value":"399288005",
+    "Code Meaning":"oblique cranio-caudal"
+  },
+  {
+    "Code Value":"399225005",
+    "Code Meaning":"oblique caudo-cranial"
+  },
+  {
+    "Code Value":"399132005",
+    "Code Meaning":"frontal-oblique axial"
+  },
+  {
+    "Code Value":"399325008",
+    "Code Meaning":"sagittal-oblique axial"
+  },
+  {
+    "Code Value":"399182000",
+    "Code Meaning":"oblique"
+  },
+  {
+    "Code Value":"399067008",
+    "Code Meaning":"lateral"
+  },
+  {
+    "Code Value":"399110001",
+    "Code Meaning":"tangential"
+  },
+  {
+    "Code Value":"399255003",
+    "Code Meaning":"submentovertical"
+  },
+  {
+    "Code Value":"399360002",
+    "Code Meaning":"verticosubmental"
+  },
+  {
+    "Code Value":"399071006",
+    "Code Meaning":"plantodorsal"
+  },
+  {
+    "Code Value":"399335002",
+    "Code Meaning":"dorsoplantar"
+  },
+  {
+    "Code Value":"399272005",
+    "Code Meaning":"parietoacanthial"
+  },
+  {
+    "Code Value":"399242004",
+    "Code Meaning":"acanthioparietal"
+  },
+  {
+    "Code Value":"399351005",
+    "Code Meaning":"orbitoparietal"
+  },
+  {
+    "Code Value":"399316002",
+    "Code Meaning":"parieto-orbital"
+  },
+  {
+    "Code Value":"399099002",
+    "Code Meaning":"latero-medial oblique"
+  },
+  {
+    "Code Value":"399368009",
+    "Code Meaning":"medio-lateral oblique"
+  },
+  {
+    "Code Value":"119376003",
+    "Code Meaning":"tissue specimen"
+  },
+  {
+    "Code Value":"260499007",
+    "Code Meaning":"Occlusal projection"
+  }
+]

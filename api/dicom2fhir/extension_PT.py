@@ -1,12 +1,14 @@
 from ..dicom2fhir import dicom2fhirutils
 import logging
 import pandas as pd
+import os
 
 RADIOPHARMACEUTICAL_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_4021.html"
 radionuclide_SNOMED_MAPPING_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_4020.html"
 
-
-def _get_snomed_mapping(url, debug: bool = False):
+RADIOPHARMACEUTICAL_SNOMED_MAPPING_LOCAL_FILE ='RADIOPHARMACEUTICAL_SNOMED_MAPPING_URL.json'
+radionuclide_SNOMED_MAPPING__LOCAL_FILE = 'radionuclide_SNOMED_MAPPING_URL.json'
+def _get_snomed_mapping_RADIOPHARMACEUTICAL(url, debug: bool = False):
     try:
 
         logging.info(f"Get Radiopharmaceutical-SNOMED mapping from {url}")
@@ -27,17 +29,50 @@ def _get_snomed_mapping(url, debug: bool = False):
         print(value_error)
         logging.error(value_error)
 
+        if os.path.exists(RADIOPHARMACEUTICAL_SNOMED_MAPPING_LOCAL_FILE):
+            mapping = pd.read_json(RADIOPHARMACEUTICAL_SNOMED_MAPPING_LOCAL_FILE, orient="records")
+            return mapping
+        return None
+
+
+def _get_snomed_mapping_radionuclide(url, debug: bool = False):
+    try:
+
+        logging.info(f"Get radionuclide-SNOMED mapping from {url}")
+        df = pd.read_html(url, converters={
+            "Code Value": str,
+            "Code Meaning": str,
+            "SNOMED-RT ID": str
+        })
+
+        # required columns
+        req_cols = ["Code Value", "Code Meaning", "SNOMED-RT ID"]
+
+        mapping = df[2][req_cols]
+
+        return mapping
+    except Exception as e:
+        value_error = f'Error when try to connect to {url} : {e.args[0]}'
+        print(value_error)
+        logging.error(value_error)
+
+        if os.path.exists(radionuclide_SNOMED_MAPPING__LOCAL_FILE):
+            mapping = pd.read_json(radionuclide_SNOMED_MAPPING__LOCAL_FILE, orient="records")
+            return mapping
+        return None
+
 
 # get mapping table
-mapping_table_radiopharmaceutical = _get_snomed_mapping(
-    url=RADIOPHARMACEUTICAL_SNOMED_MAPPING_URL)
-mapping_table_radionuclide = _get_snomed_mapping(
-    url=radionuclide_SNOMED_MAPPING_URL)
+# mapping_table_radiopharmaceutical = _get_snomed_mapping(
+#     url=RADIOPHARMACEUTICAL_SNOMED_MAPPING_URL)
+# mapping_table_radionuclide = _get_snomed_mapping(
+#     url=radionuclide_SNOMED_MAPPING_URL)
 
 
 def _get_snomed(value, sctmapping):
     # codes are strings
-    return (sctmapping.loc[sctmapping['SNOMED-RT ID'] == value]["Code Value"].values[0])
+    if sctmapping is not None:
+        return (sctmapping.loc[sctmapping['SNOMED-RT ID'] == value]["Code Value"].values[0])
 
 
 def parse_time_to_seconds(time_str):
@@ -123,7 +158,9 @@ def gen_extension(ds):
     except Exception:
         pass
     try:
-
+        mapping_table_radiopharmaceutical = _get_snomed_mapping_RADIOPHARMACEUTICAL(
+            url=RADIOPHARMACEUTICAL_SNOMED_MAPPING_URL)
+      
         snomed_pharmaceutical = _get_snomed(
             ds[0x0054, 0x0016][0][0x0054, 0x0304][0][0x0008, 0x0100].value, mapping_table_radiopharmaceutical)
 
@@ -193,7 +230,8 @@ def gen_extension(ds):
     except Exception:
         pass
     try:
-
+        mapping_table_radionuclide = _get_snomed_mapping_radionuclide(
+            url=radionuclide_SNOMED_MAPPING_URL)
         snomed_radionuclide = _get_snomed(
             ds[0x0054, 0x0016][0][0x0054, 0x0300][0][0x0008, 0x0100].value, mapping_table_radionuclide)
 

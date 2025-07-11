@@ -326,7 +326,7 @@ class DcmCommunication:
     def send_fhir(self, file_path, fhir_server):
         response = False
         try:                
-            print('################### STARTING SEND TO FILES ################# files sent to fhir')
+            print('################### STARTING SEND TO FHIR #################')
 
             process_study(root_path=file_path,include_instances=True,  build_bundle=True, output_path= '',create_device=True ,save_json_file= False,fhir_server= fhir_server)
             response = True
