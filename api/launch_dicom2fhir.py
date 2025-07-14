@@ -37,7 +37,7 @@ def process_study(root_path, include_instances, build_bundle, output_path, creat
 
           
             response = requests.post(url=f'{fhir_server}',
-                          data=  result_bundle.json(),              
+                          data=  result_bundle.model_dump_json(),              
                            headers= {
                     "Content-type": "application/fhir+json",
                 }, verify=False)
@@ -88,17 +88,17 @@ def build_from_resources(resources: List[Resource], id: str | None) -> Bundle:
     bundle_id = id
     if bundle_id is None:
         bundle_id = str(uuid.uuid4())
-
     bundle = Bundle(**{"id": bundle_id, "type": "transaction", "entry": []})
-
     for resource in resources:
+        url = f"{resource.get_resource_type()}/{resource.id}"
         request = BundleEntryRequest(
-            **{"url": f"{resource.get_resource_type()}/{resource.id}", "method": "PUT"}
+            **{"url": f"{url}", "method": "PUT"}
         )
         entry = BundleEntry.model_construct()
         entry.request = request
         entry.fullUrl = request.url
         entry.resource = resource
         bundle.entry.append(entry)
+        print(f'✅  added: {url}')
 
     return bundle

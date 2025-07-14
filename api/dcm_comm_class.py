@@ -273,19 +273,17 @@ class DcmCommunication:
 
 
 
-    def __handle_uploaded_file_to_store(self,file,file_name, remote_scp):
+    def __handle_uploaded_file_to_store(self,file,file_name, remote_scp, store_path):
   
         response = { 'status':True, 'message':'', 'filename':file_name}
         try:
-            store_root = settings.DCM_PATH
-            store_path =os.path.join(store_root,'temp')
+            # store_root = settings.DCM_PATH
+            # store_path =os.path.join(store_root,'temp')
             if not os.path.exists(store_path):
                 os.makedirs(store_path)
                 
             FileSystemStorage(location=store_path).save(file_name, file)
-            file_path = os.path.join(store_path,file_name)
-    
-           
+            file_path = os.path.join(store_path,file_name)          
             assoc= self.__get_association(self.local_aetitle, remote_scp, True)
             ds = dcm.dcmread(file_path)
             if assoc.is_established:
@@ -323,11 +321,10 @@ class DcmCommunication:
 
 
 
-    def send_fhir(self, file_path, fhir_server):
+    def __send_fhir(self, file_path, fhir_server):
         response = False
         try:                
             print('################### STARTING SEND TO FHIR #################')
-
             process_study(root_path=file_path,include_instances=True,  build_bundle=True, output_path= '',create_device=True ,save_json_file= False,fhir_server= fhir_server)
             response = True
         except Exception as e:
@@ -342,9 +339,9 @@ class DcmCommunication:
 
     def execute_c_store(self,request):
         try:
-           
-            file_path = os.path.join(settings.DCM_PATH,'temp') 
-            self.__delete_path(file_path)
+            print(f'📝current session_key {request.session._session_key}')
+            store_path = os.path.join(settings.DCM_PATH,'temp', request.session._session_key) 
+            #self.__delete_path(file_path)
             fhir_server = None
             response = []
             resp = {}
@@ -364,19 +361,19 @@ class DcmCommunication:
                             fhir_server = base64.b64decode(remote_scp_data[3]).decode("utf-8")   
                         else:
                             file_name = remote_scp_data[3]
-                        result = self.__handle_uploaded_file_to_store(file,file_name,remote_scp)
+                        result = self.__handle_uploaded_file_to_store(file,file_name,remote_scp, store_path)
                         response.append(result)
                     except Exception as e:
                         value_error =  f'An error occurred by c-store: {e.args[0]}'
                         logger.exception(value_error)
 
                 if fhir_server is not None:
-                    fhir_sent = self.send_fhir(file_path, fhir_server)
+                    fhir_sent = self.__send_fhir(store_path, fhir_server)
                     
                     resp['fhir']= fhir_sent
                     print(f'Sent to fhir server {fhir_server} was {fhir_sent}')
 
-                self.__delete_path(file_path)
+                self.__delete_path(store_path)
 
             resp['message']= ''
             resp['response'] = response   
@@ -384,7 +381,7 @@ class DcmCommunication:
 
         except Exception as e:
   
-            self.__delete_path(file_path)
+            self.__delete_path(store_path)
             value_error =  f'An error occurred by c-store: {e.args[0]}'
             logger.exception(value_error)
             raise  Exception(e)
