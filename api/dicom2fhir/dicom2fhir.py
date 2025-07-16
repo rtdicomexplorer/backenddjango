@@ -340,16 +340,31 @@ def process_dicom_2_fhir(dcmDir: str, include_instances: bool) -> imagingstudy.I
     imagingStudy = None
     accession_number = None
     patient_data = None
+    pat_name = None
+    pat_id = None
+    pat_birthdate = None
+    pat_gender = None
     for fp in tqdm(files):
         try:
             with dcmread(fp, None, [0x7FE00010], force=True) as ds:
                 if patient_data is None:
                     patient_data = {}
-                    patient_data['name']= ds.PatientName
-                    patient_data['gender']= ds.PatientSex
-                    patient_data['birthdate']= ds.PatientBirthDate
-                    patient_data['ID']= ds.PatientID
-
+                    if[0x0010,0x0010] in ds:
+                        pat_name = ds.PatientName
+                   
+                    if[0x0010,0x0020] in ds:
+                        pat_id = ds.PatientID
+                   
+                    if[0x0010,0x0030] in ds:
+                        pat_birthdate = ds.PatientBirthDate 
+                    
+                    if[0x0010,0x0040] in ds:
+                        pat_gender = ds.PatientSex
+                    
+                patient_data['name']= pat_name
+                patient_data['ID']= pat_id
+                patient_data['birthdate']= pat_birthdate
+                patient_data['gender']= pat_gender
                 if studyInstanceUID is None:
                     studyInstanceUID = ds.StudyInstanceUID
                 if studyInstanceUID != ds.StudyInstanceUID:
@@ -379,7 +394,7 @@ def process_dicom_2_fhir(dcmDir: str, include_instances: bool) -> imagingstudy.I
     # identifier = [identifier.Identifier(value=patient_data["ID"])],
 
 
-    patient = dicom2fhirutils.inline_patient_resource(fhir_id, patient_data['ID'], None, patient_data['name'], patient_data['gender'], patient_data['birthdate'])
+    patient = dicom2fhirutils.inline_patient_resource(fhir_id, pat_id, None, pat_name, pat_gender, pat_birthdate)
 
 
     # patient =  Patient(

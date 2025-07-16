@@ -26,16 +26,13 @@ def process_study(root_path, include_instances, build_bundle, output_path, creat
     # build imagingstudy bundle
     if build_bundle:
         result_list = []
-        result_list.append(result_resource)
         result_list.append(patient)
+        result_list.append(result_resource)
         devs = [x[0] for x in dev_list]
         result_list = result_list + devs
         result_bundle = build_from_resources(result_list, study_instance_uid)
         # need to sent to FHIR
         if fhir_server is not None:
-
-
-          
             response = requests.post(url=f'{fhir_server}',
                           data=  result_bundle.model_dump_json(),              
                            headers= {

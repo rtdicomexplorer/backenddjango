@@ -6,6 +6,8 @@ import time
 from django.conf import settings
 from  api.launch_dicom2fhir import process_study
 import base64
+import uuid
+import shutil
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
@@ -35,7 +37,7 @@ from pynetdicom.sop_class import (
 
 from api.models import LocalConfig
 
-_exclusiions =[
+_exclusions =[
     RoutineScalpElectroencephalogramWaveformStorage,
     MultichannelRespiratoryWaveformStorage,
     General32bitECGWaveformStorage,
@@ -73,43 +75,21 @@ class DcmCommunication:
     def __init__(self):
         self.get_file_list = []
 
+        self.uid = str(uuid.uuid4())
         self.local_aetitle = get_local_aetitle()
     
-    def __handle_store(self,event):
-
-        """Handle a C-STORE request event to store in existing folder."""
-        store_root = settings.DCM_PATH
-        ds = event.dataset
-        ds.file_meta = event.file_meta
-        store_path =os.path.join(store_root,ds.StudyInstanceUID)
-        if not os.path.exists(store_path):
-            os.makedirs(store_path)
-
-        store_path =os.path.join(store_path,ds.SeriesInstanceUID)
-        if not os.path.exists(store_path):
-            os.makedirs(store_path)
-
-        file_name = ds.SOPInstanceUID + ".dcm"
-        file_path_name = os.path.join(store_path,file_name)
-        # Save the dataset using the SOP Instance UID as the filename
-        ds.save_as(file_path_name, write_like_original=False)
-        logger.debug(f'file saved: {file_path_name}')
-        # Return a 'Success' status
-        self.get_file_list.append(file_name)
-        return 0x0000
-
     def __get_association(self,local_scu, remote_scp,store_scu, handlers =[]):
         ae = AE(ae_title=local_scu)
         roles =[]
         if store_scu :
-            ae.requested_contexts = StoragePresentationContexts
+            ae.requested_contexts = StoragePresentationContexts[:]
         else:
             ae.requested_contexts= QueryRetrievePresentationContexts[:]
             ae.add_requested_context("1.2.840.10008.1.1")
          
             if len(handlers)>0:
                 for c in StoragePresentationContexts :
-                    if c.abstract_syntax not in _exclusiions:
+                    if c.abstract_syntax not in _exclusions:
                         ae.add_requested_context(c.abstract_syntax)
                         roles.append(build_role(c.abstract_syntax, scp_role=True))
         return ae.associate(
@@ -215,13 +195,13 @@ class DcmCommunication:
 
     def execute_c_get(self,request):
         try:
-
+            print(f'📝current session_key {self.uid}')
             dcm_server = request.data['remotescp']
             query_retrieve_level=request.data['queryretrievelevel']
             payload = request.data['payload']
             servserializer = DicomServerSerializers(data=dcm_server)
             remote_scp = servserializer.initial_data      
-            handlers =[(evt.EVT_C_STORE, self.__handle_store)]
+            handlers =[(evt.EVT_C_STORE,self.__handle_get_store_as_scp, [self.uid])]
             st= time.time()
             req_dataset =dcm.Dataset()
             for key in payload.keys():
@@ -244,15 +224,12 @@ class DcmCommunication:
 
                     if status:
                         print('C-GET query status: 0x{0:04X}'.format( status.Status))
-
                         if status.Status == 0xFF00:#pending
                             nr_sub_completed = status.NumberOfCompletedSuboperations
                             nr_sub_remaining = status.NumberOfRemainingSuboperations
                             nr_sub_warning = status.NumberOfWarningSuboperations
                             nr_sub_failed = status.NumberOfFailedSuboperations
                             logger.debug('Nr. of remaining sub operation %s: ',nr_sub_remaining)
-
-                            # yield {'message': '', 'response' : nr_sub_remaining}
                     else:
                         logger.debug('Connection timed out, was aborted or received invalid response')
                 # Release the association
@@ -271,14 +248,35 @@ class DcmCommunication:
             error = str(list(servserializer.errors.values())[0][0])
             raise  Exception(error)
 
+    def __handle_get_store_as_scp(self,event, sessionkey):
 
+        """Handle a C-STORE request event to store in existing folder. after a get request"""
+        store_root = os.path.join(settings.DCM_PATH, sessionkey)
+        if not os.path.exists(store_root):
+            os.makedirs(store_root)
+        ds = event.dataset
+        ds.file_meta = event.file_meta
+        store_path =os.path.join(store_root,ds.StudyInstanceUID)
+        if not os.path.exists(store_path):
+            os.makedirs(store_path)
+
+        # store_path =os.path.join(store_path,ds.SeriesInstanceUID)
+        # if not os.path.exists(store_path):
+        #     os.makedirs(store_path)
+
+        file_name = ds.SOPInstanceUID + ".dcm"
+        file_path_name = os.path.join(store_path,file_name)
+        # Save the dataset using the SOP Instance UID as the filename
+        ds.save_as(file_path_name, write_like_original=False)
+        logger.debug(f'file saved: {file_path_name}')
+        # Return a 'Success' status
+        self.get_file_list.append(file_name)
+        return 0x0000
 
     def __handle_uploaded_file_to_store(self,file,file_name, remote_scp, store_path):
   
         response = { 'status':True, 'message':'', 'filename':file_name}
         try:
-            # store_root = settings.DCM_PATH
-            # store_path =os.path.join(store_root,'temp')
             if not os.path.exists(store_path):
                 os.makedirs(store_path)
                 
@@ -311,12 +309,9 @@ class DcmCommunication:
             value_error =  f'An error occurred: {e.args[0]}'
             logger.exception(value_error)       
             response['status']= False
-            response['message']= value_error
-            
+            response['message']= value_error         
             
         finally:
-            # if os.path.exists(file_path):
-            #     os.remove(file_path)
             return response
 
 
@@ -339,9 +334,8 @@ class DcmCommunication:
 
     def execute_c_store(self,request):
         try:
-            print(f'📝current session_key {request.session._session_key}')
-            store_path = os.path.join(settings.DCM_PATH,'temp', request.session._session_key) 
-            #self.__delete_path(file_path)
+            print(f'📝current session_key {self.uid}')
+            store_path = os.path.join(settings.DCM_PATH,'temp', self.uid) 
             fhir_server = None
             response = []
             resp = {}
@@ -386,19 +380,17 @@ class DcmCommunication:
             logger.exception(value_error)
             raise  Exception(e)
         
+    
 
     def __delete_path(self,path):
         if os.path.exists(path):
-            files = os.listdir(path)
-            for file in files:
-                os.remove(  os.path.join(path,file))
+            shutil.rmtree(path)
 
-
-   
 
     def execute_c_move(self,request):
 
         try:    
+
             html_response ={}
             dcm_server = request.data['remotescp']
             query_retrieve_level=request.data['queryretrievelevel']

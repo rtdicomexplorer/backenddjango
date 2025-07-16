@@ -11,8 +11,7 @@ __logger = logging.getLogger('backenddjango')
 #C-ECHO command
 @api_view(['POST'])
 def echo_command(request):  
-    if not request.session.session_key:
-        request.session.save()
+
     try:
         dcm_com = DcmCommunication()
         result = dcm_com.execute_echo(request)
@@ -29,66 +28,58 @@ def echo_command(request):
 #C-FIND command
 @api_view(['POST'])
 def find_command(request):
-    if not request.session.session_key:
-        request.session.save()
     try:      
         dcm_com = DcmCommunication()
         result = dcm_com.execute_c_find(request)
         message = result['message']
         if message == '':
             items_found = result['response']          
-            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK})
+            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK,'sessionkey':dcm_com.uid})
         else:
-            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
     except Exception as e:
         value_error =  f'An error occurred: {e.args[0]}'
         __logger.exception(value_error)
-        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
-
-
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
 
 #C-GET command
 @api_view(['POST'])
 def get_command(request):
-    if not request.session.session_key:
-        request.session.save()
     try:      
         dcm_com = DcmCommunication()
         result = dcm_com.execute_c_get(request)
         message = result['message']
         if message == '':
             items_found = result['response']          
-            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK})
+            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK, 'sessionkey':dcm_com.uid})
         else:
-            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
     except Exception as e:
         value_error =  f'An error occurred: {e.args[0]}'
         __logger.exception(value_error)
-        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
 
 #C-MOVE command
 @api_view(['POST'])
 def move_command(request):
-    if not request.session.session_key:
-        request.session.save()
     try:      
         dcm_com = DcmCommunication()
         result = dcm_com.execute_c_move(request)
         message = result['message']
         if message == '':
             items_found = result['response']          
-            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK})
+            return JsonResponse({'data': items_found , 'status': status.HTTP_200_OK,'sessionkey':dcm_com.uid})
         else:
-            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
     except Exception as e:
         value_error =  f'An error occurred: {e.args[0]}'
         __logger.exception(value_error)
-        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
 
 
@@ -97,8 +88,6 @@ def move_command(request):
 #C-STORE command
 @api_view(['POST'])
 def store_command(request):
-    if not request.session.session_key:
-        request.session.save()
     try:      
         settings.DATA_UPLOAD_MAX_NUMBER_FILES = None
         dcm_com = DcmCommunication()
@@ -107,24 +96,22 @@ def store_command(request):
         if message == '':
             items_found = result['response'] 
             if 'fhir'in result:        
-                return JsonResponse({'data': items_found ,'fhir':result['fhir'], 'status': status.HTTP_200_OK})
+                return JsonResponse({'data': items_found ,'fhir':result['fhir'], 'status': status.HTTP_200_OK,'sessionkey':dcm_com.uid})
             else:
-                return JsonResponse({'data': items_found ,'status': status.HTTP_200_OK})
+                return JsonResponse({'data': items_found ,'status': status.HTTP_200_OK,'sessionkey':dcm_com.uid})
             
         else:
-            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST})
+            return JsonResponse({'message': message , 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
     except Exception as e:
         value_error =  f'An error occurred: {e.args[0]}'
         __logger.exception(value_error)
-        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST})
+        return JsonResponse( {'message': value_error, 'status': status.HTTP_400_BAD_REQUEST,'sessionkey':dcm_com.uid})
 
 
 
 @api_view(['POST'])
 def get_binary(request):
-    if not request.session.session_key:
-        request.session.save()    
     try:            
         return HttpResponse(get_binaryimage(request), content_type='application/octet-stream')
     except Exception as e:
@@ -133,8 +120,6 @@ def get_binary(request):
 
 @api_view(['POST'])
 def get_base64(request):
-    if not request.session.session_key:
-        request.session.save()
     try:      
         return JsonResponse( {'data': get_base64image(request),'status': status.HTTP_200_OK })
 
@@ -145,8 +130,7 @@ def get_base64(request):
 
 @api_view(['POST'])
 def get_dicom_file_list(request):
-    if not request.session.session_key:
-        request.session.save()
+
     try:      
         file_to_send = get_dcm_filelist(request)
         return JsonResponse( {'data': file_to_send ,'status': status.HTTP_200_OK })

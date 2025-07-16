@@ -17,6 +17,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta, datetime
 import logging
+import shutil
 load_dotenv(override=True)
 
 
@@ -24,7 +25,10 @@ load_dotenv(override=True)
 
 LOCAL_AET = os.getenv('LOCAL_AETITLE', default='localscu')
 DCM_PATH = os.getenv('DCM_PATH', 'dcm_data')
-if not os.path.exists(DCM_PATH):
+
+
+if os.path.exists(DCM_PATH):
+    shutil.rmtree(DCM_PATH)
     os.makedirs(DCM_PATH)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
