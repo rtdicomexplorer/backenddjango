@@ -1,0 +1,63 @@
+name: django-backend-project
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:  
+        - REQUIREMENTS_FILE=requirements.txt
+    command: ./entrypoint.sh      
+    image: backend-app-image:11-07-2025-dcm2fhir
+    container_name: backend-app-container
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    depends_on:
+      - dbbackend
+  dbbackend:
+    image: postgres:15.10
+    container_name: postgres_container
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: ${DBNAME}
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_PASSWORD: ${DBPASSWORD}
+    restart: unless-stopped
+    volumes:
+      - base_postgres_data:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: backend-pgadmin #you can change this
+    depends_on:
+      - dbbackend
+    ports:
+      - "5051:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGEMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGPASSWORD}
+    restart: unless-stopped
+    volumes:
+      - pg-admin-data:/var/lib/pgadmin
+
+
+  nginx-app:
+    image: nginx
+    container_name: nginx-app-baseprj
+    depends_on:
+      - app
+    restart: always
+    ports:
+      - 8085:8085
+      - 543:443
+    volumes:
+      - ./html:/usr/share/nginx/html
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/nginx:/var/log/nginx
+      - ./certs:/etc/nginx/certs
+
+volumes:
+  base_postgres_data:
+  pg-admin-data:
