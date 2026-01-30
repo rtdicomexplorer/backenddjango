@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:3:12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -6,6 +6,13 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 ARG REQUIREMENTS_FILE
+#system dependencies for lxml
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libxslt1-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 
 COPY ./$REQUIREMENTS_FILE ./
 
